@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stage 4: Data and systems | Ship It</title>
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.lesson{margin:18px 0}.lesson h2{margin:0 0 8px}.lesson h3{margin:20px 0 7px}.lesson p,.lesson li{line-height:1.7}.lesson .diagram{padding:14px;border:1px dashed var(--line,rgba(255,255,255,.25));border-radius:12px;white-space:pre-wrap;font: .9rem/1.65 ui-monospace,monospace;overflow:auto}.lesson details{margin:12px 0}.lesson summary{cursor:pointer;font-weight:700;padding:8px 0}.lesson .blk{margin:16px 0}.lesson .try{margin-top:16px}.lesson .code{overflow:auto}.lesson .meta{margin-bottom:8px}
+</style>
+</head>
+<body>
+<header class="top"><a href="../index.html">← Roadmap</a><span class="streak" id="streak"></span></header>
+<main class="wrap">
+<p class="meta">STAGE 4 · DEEP LEARNING</p><h1>Data and systems</h1><p class="sub">Learn how applications store data, handle load, run in containers and stay reliable in production.</p>
+<p class="note">How to use this stage: read one lesson, reproduce the example without copying, explain the diagram aloud, then complete the exercise. Open the answer only after making an attempt.</p>
+<section class="card lesson" id="lesson-1">
+<p class="meta">LESSON 1 · 30–45 min</p><h2>Relational databases and SQL fundamentals</h2><p>A relational database stores data in tables with defined relationships. SQL describes the data you want, while the database engine chooses an execution plan. A sound schema reduces duplication and protects data integrity.</p>
+<div class="blk"><h3>Tables, keys and relationships</h3><p>A row represents one entity instance; a column represents an attribute. A primary key uniquely identifies a row. A foreign key references a key in another table and enforces a relationship. Use constraints such as NOT NULL, UNIQUE and CHECK so invalid data is rejected close to where it is stored.</p><pre class="code">CREATE TABLE customers (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL
+);
+
+CREATE TABLE orders (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  customer_id BIGINT NOT NULL REFERENCES customers(id),
+  total_cents INTEGER NOT NULL CHECK (total_cents &gt;= 0),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);</pre></div><div class="blk"><h3>CRUD and filtering</h3><p>SELECT reads, INSERT creates, UPDATE changes and DELETE removes. Be explicit about columns. Parameterize values in application code; never build SQL by concatenating untrusted user input.</p><pre class="code">SELECT id, email
+FROM customers
+WHERE email ILIKE $1
+ORDER BY id DESC
+LIMIT 20;
+
+UPDATE orders
+SET total_cents = $1
+WHERE id = $2;</pre></div><div class="blk"><h3>Joins and aggregation</h3><p>INNER JOIN keeps rows with matches on both sides. LEFT JOIN keeps every left-side row and fills missing right-side columns with NULL. GROUP BY forms groups for aggregate functions such as COUNT, SUM and AVG. WHERE filters rows before grouping; HAVING filters groups afterward.</p><pre class="code">SELECT c.id, c.name, COUNT(o.id) AS order_count
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+GROUP BY c.id, c.name
+HAVING COUNT(o.id) &gt;= 2
+ORDER BY order_count DESC;</pre></div><div class="blk"><h3>Normalization</h3><p>Normalization separates facts into tables so the same fact is not copied into many rows. First normal form uses atomic values; second and third normal forms remove partial and transitive dependencies. Denormalization can be useful for measured performance needs, but introduces consistency work.</p></div>
+<div class="try"><b>Practice task:</b> Design a schema for users, projects and project memberships. Add primary/foreign keys, uniqueness constraints and a query that lists each project with its member count.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> Why use a foreign key instead of trusting application code?</p><p><b>Answer:</b> The database enforces referential integrity for every writer, including scripts and concurrent requests.</p><p><b>Why:</b> Rules enforced only in one application path can be bypassed by another writer.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> Explain INNER JOIN vs LEFT JOIN.</p><p><b>Strong answer should mention:</b> INNER JOIN returns matching rows only; LEFT JOIN retains every left row and returns NULLs for missing right-side matches.</p></details>
+</section><section class="card lesson" id="lesson-2">
+<p class="meta">LESSON 2 · 30–45 min</p><h2>Indexes, query plans and transactions</h2><p>Indexes trade storage and write overhead for faster reads. Query planning chooses scans and join strategies based on statistics and available indexes. Transactions group operations into one logical unit.</p>
+<div class="blk"><h3>How indexes work</h3><p>A B-tree index keeps keys ordered and is useful for equality and range lookups. A composite index is ordered by its leading columns, so column order matters. An index on (customer_id, created_at) can support filtering by customer and often ordering by date; it may not efficiently support filtering only by created_at.</p><pre class="code">CREATE INDEX orders_customer_created_idx
+ON orders (customer_id, created_at DESC);
+
+EXPLAIN ANALYZE
+SELECT id, total_cents
+FROM orders
+WHERE customer_id = 42
+ORDER BY created_at DESC
+LIMIT 20;</pre></div><div class="blk"><h3>Read the query plan</h3><p>EXPLAIN shows the planner's strategy; EXPLAIN ANALYZE runs the query and reports actual timings and row counts. Compare estimated and actual rows. Large mismatches can point to stale statistics or skewed data. A sequential scan is not automatically bad; for small tables or queries returning much of a table it can be faster.</p></div><div class="blk"><h3>ACID transactions</h3><p>Atomicity means all operations happen or none do. Consistency means constraints remain satisfied. Isolation controls what concurrent transactions can observe. Durability means committed data survives failures. Use transactions when multiple writes must succeed together.</p><pre class="code">BEGIN;
+UPDATE accounts
+SET balance = balance - 500
+WHERE id = 1;
+
+UPDATE accounts
+SET balance = balance + 500
+WHERE id = 2;
+COMMIT;</pre></div><div class="blk"><h3>Isolation and concurrency</h3><p>Concurrent transactions can cause lost updates, non-repeatable reads or phantom rows depending on isolation level. Use row locks or optimistic version checks for contested updates. Keep transactions short and access rows in a consistent order to reduce deadlocks.</p><pre class="diagram">Transaction A                 Transaction B
+BEGIN                         BEGIN
+read balance = 100
+                              read balance = 100
+write 80
+                              write 70  ← stale value risk
+COMMIT                        COMMIT
+Use locking / version checks to coordinate writes</pre></div>
+<div class="try"><b>Practice task:</b> Use EXPLAIN ANALYZE to compare a query before and after adding a suitable index. Record execution plan, row estimates, timing and the write/storage trade-off.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> Why might a composite index (a,b) not help a query filtering only on b?</p><p><b>Answer:</b> B-tree ordering starts with a, so the index is not generally ordered by b alone.</p><p><b>Why:</b> The leftmost-prefix principle makes the order of composite index columns important.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> What is a database transaction and when do you need one?</p><p><b>Strong answer should mention:</b> A transaction makes a set of operations behave atomically; use it when related writes must succeed or fail together, such as transferring money.</p></details>
+</section><section class="card lesson" id="lesson-3">
+<p class="meta">LESSON 3 · 30–45 min</p><h2>Caching, queues and background jobs</h2><p>Databases are the source of truth for many applications, but repeated expensive reads and long-running work can strain request latency. Caches and queues help when their consistency and failure behavior are designed deliberately.</p>
+<div class="blk"><h3>Cache-aside pattern</h3><p>The application checks a cache first. On a miss it reads the database, stores the result with a time-to-live, and returns it. On writes, invalidate or update the cache. Cache keys must include every input that changes the result, including user or permission context when relevant.</p><pre class="diagram">Request → Cache lookup
+            ├─ hit  → return cached value
+            └─ miss → Database read → set TTL → return
+Write → Database commit → invalidate related cache keys</pre></div><div class="blk"><h3>Cache trade-offs</h3><p>A cache can serve stale data, consume memory and create invalidation bugs. Use short TTLs for data that changes frequently. Avoid caching sensitive user data in shared keys. Add request coalescing or a short-lived lock to reduce cache stampedes when a popular key expires.</p></div><div class="blk"><h3>Message queues</h3><p>A producer sends a message; a broker stores it; a consumer processes it. Queues decouple request handling from slow work such as sending email, generating reports or processing images. Design for at-least-once delivery: a message may be delivered more than once, so consumers should be idempotent.</p><pre class="code">// Conceptual job payload
+{
+  "id": "job-8f2",
+  "type": "send_receipt",
+  "orderId": 42,
+  "attempt": 1
+}</pre></div><div class="blk"><h3>Retries, dead letters and the outbox</h3><p>Retry transient failures with exponential backoff and jitter. Do not retry permanent validation errors forever. After a limit, move failed messages to a dead-letter queue for inspection. The transactional outbox pattern writes the business change and an event record in one database transaction; a worker publishes the event later.</p></div>
+<div class="try"><b>Practice task:</b> Add a background email job to an application. Make processing idempotent, retry temporary provider failures with backoff, and record permanently failed jobs for review.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> Why should a queue consumer be idempotent?</p><p><b>Answer:</b> Because at-least-once delivery can run the same message more than once; idempotency prevents duplicate side effects.</p><p><b>Why:</b> Distributed systems can fail after work succeeds but before the acknowledgement reaches the broker.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> What is cache invalidation?</p><p><b>Strong answer should mention:</b> It is deciding when cached data becomes stale and ensuring subsequent reads do not keep returning obsolete values; discuss TTL, write-through or explicit invalidation and consistency needs.</p></details>
+</section><section class="card lesson" id="lesson-4">
+<p class="meta">LESSON 4 · 30–45 min</p><h2>Docker, containers and deployment</h2><p>A container packages an application with its runtime dependencies while sharing the host kernel. Images are immutable templates; containers are running instances. Containers improve repeatability but do not automatically make an application secure or highly available.</p>
+<div class="blk"><h3>Image and container lifecycle</h3><p>A Dockerfile describes image layers. Build an image, run a container from it, expose the required port and pass configuration through environment variables. Keep secrets out of the image and source repository.</p><pre class="code">FROM node:22-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+ENV NODE_ENV=production
+EXPOSE 3000
+CMD ["node", "server.js"]</pre></div><div class="blk"><h3>Compose for local development</h3><p>Docker Compose defines services, networks and volumes in one file. Use a named volume for local database persistence. A container's filesystem is disposable; do not rely on it as the only copy of important data.</p><pre class="code">services:
+  app:
+    build: .
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: postgres://app:dev@db:5432/app
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:</pre></div><div class="blk"><h3>Configuration and health</h3><p>Separate configuration from code. Validate required environment variables at startup. Provide a health endpoint that checks whether the process can serve traffic; use a separate readiness check when dependencies must be available before receiving requests. Log to stdout/stderr so the platform can collect logs.</p></div><div class="blk"><h3>Deployment pipeline</h3><p>undefined</p><pre class="diagram">Commit → lint + tests → build artifact/image
+      → security/dependency checks
+      → deploy to staging → smoke tests
+      → production rollout → monitor
+      ↘ rollback if health/error budget degrades</pre></div>
+<div class="try"><b>Practice task:</b> Containerize a small API and Postgres database with Compose. Document how to start, stop, inspect logs, persist data and run tests in a clean environment.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> Why should secrets not be copied into a Docker image?</p><p><b>Answer:</b> Image layers can be inspected and shared; secrets may remain in layer history even if later deleted.</p><p><b>Why:</b> Inject secrets at runtime through a secret manager or protected deployment configuration.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> What is the difference between an image and a container?</p><p><b>Strong answer should mention:</b> An image is the built, immutable template; a container is a running instance created from that image.</p></details>
+</section><section class="card lesson" id="lesson-5">
+<p class="meta">LESSON 5 · 30–45 min</p><h2>Testing, CI/CD and observability</h2><p>Testing provides fast feedback and protects behavior as code changes. CI automates checks on every change; CD automates delivery. Observability helps explain what a running system is doing.</p>
+<div class="blk"><h3>Testing pyramid</h3><p>Unit tests verify small functions quickly. Integration tests verify boundaries such as database queries and HTTP handlers. End-to-end tests exercise critical user journeys through the real application stack. Favor many focused tests and a smaller number of high-value end-to-end tests.</p><pre class="diagram">          /\
+         /E2E\       few, slower, broad
+        /------\
+       /Integr. \    service + database boundaries
+      /----------\
+     /   Unit     \  many, fast, focused
+    /______________\</pre></div><div class="blk"><h3>Arrange, Act, Assert</h3><p>A readable test has setup, one action and clear expectations. Test normal behavior, boundaries, invalid input and failure behavior. Avoid tests that only repeat implementation details; assert externally visible behavior.</p><pre class="code">test("rejects an empty title", async () =&gt; {
+  const response = await request(app)
+    .post("/api/tasks")
+    .send({ title: "   " });
+
+  expect(response.status).toBe(400);
+  expect(response.body.error).toBe("Title is required");
+});</pre></div><div class="blk"><h3>Continuous integration</h3><p>A CI pipeline typically checks formatting, lint, unit/integration tests and build output. Make failures visible and reproducible. Pin dependency versions, cache package downloads safely, and protect deployment credentials. Keep the pipeline fast enough that developers do not ignore it.</p></div><div class="blk"><h3>Logs, metrics and traces</h3><p>Logs describe individual events and should include a request or trace ID. Metrics summarize behavior over time: request rate, error rate, latency and saturation are useful starting signals. Traces connect spans across services to show where time was spent. Do not log passwords, tokens or unnecessary personal data.</p></div><div class="blk"><h3>SLOs and incident learning</h3><p>A service-level indicator is a measured signal such as successful request ratio or p95 latency. A service-level objective is the target. An error budget makes reliability trade-offs explicit. After an incident, write a blameless review: impact, timeline, contributing factors, detection gaps and concrete follow-up actions.</p></div>
+<div class="try"><b>Practice task:</b> Create a CI workflow that installs dependencies, runs lint and tests, and builds the app. Add structured request logs and a health endpoint. Write a short incident runbook for a failed deployment.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> What does p95 latency mean?</p><p><b>Answer:</b> 95% of measured requests completed at or below that latency; the slowest 5% took longer.</p><p><b>Why:</b> Percentiles expose tail latency that an average can hide.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> How would you investigate a sudden increase in API errors?</p><p><b>Strong answer should mention:</b> Check dashboards for rate, status codes and latency; correlate logs/traces by request ID; identify recent deploys/dependency failures; mitigate safely; then document root cause and prevention.</p></details>
+</section>
+<section class="card"><h2>Stage project</h2><p>Learn how applications store data, handle load, run in containers and stay reliable in production.</p><ol><li>Write a one-page scope and define the user problem.</li><li>Build the smallest working version before adding extras.</li><li>Test the happy path, invalid input, empty state and failure path.</li><li>Write a README with setup steps, screenshots and trade-offs.</li><li>Ask someone to use it and record what confused them.</li></ol><p class="try"><b>Definition of done:</b> a stranger can run it, understand its purpose, and verify its main behavior.</p></section>
+<div class="nav"><a class="ghost btn" href="../index.html">Roadmap</a><a class="btn" href="flashcards.html">Review flashcards</a></div>
+</main><script src="../js/app.js"></script><script>paintStreak();</script>
+</body></html>
