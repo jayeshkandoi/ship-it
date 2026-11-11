@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stage 2: Data structures and algorithms | Ship It</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="top"><a href="../index.html">← Roadmap</a><span class="streak" id="streak"></span></header>
+<main class="wrap">
+<h1>Data structures and algorithms</h1>
+<p class="sub">Three parts, one at a time. Start easy and work up. About 8–10 weeks at 10 hours a week.</p>
+<div class="tabs" id="tabs"></div>
+<div id="panel"></div>
+<div id="timer"></div>
+</main>
+<script src="../js/app.js"></script>
+<script>
+const LESSONS=[
+["Big-O and complexity","Big-O describes how running time or memory grows as the input size n grows, ignoring constants. The common classes, from fastest to slowest: O(1), O(log n), O(n), O(n log n), O(n²). A single pass is O(n), a loop inside a loop is usually O(n²), and halving the input each step is O(log n).",[["Big-O cheat sheet","https://www.bigocheatsheet.com"],["CS50 lectures","https://cs50.harvard.edu/x"]]],
+["Arrays, strings, hash maps","Arrays give O(1) access by index but O(n) inserts in the middle. Hash maps trade memory for speed: average O(1) lookup, insert, and delete. When you catch yourself scanning for the same thing repeatedly, ask whether a hash map could remember it.",[["NeetCode roadmap","https://neetcode.io"],["LeetCode problems","https://leetcode.com/problemset"]]],
+["Stacks, queues, linked lists","A stack is last in, first out (undo, bracket matching). A queue is first in, first out (task lines, BFS). A linked list stores nodes that point to the next one: O(1) to insert at a known spot, O(n) to find it.",[["VisuAlgo animations","https://visualgo.net"]]],
+["Trees and graphs","A tree is a graph with no cycles. DFS goes deep first (recursion or a stack). BFS goes level by level (a queue) and finds the shortest path when edges are unweighted. Track visited nodes in graphs so you never loop forever.",[["VisuAlgo animations","https://visualgo.net"],["NeetCode roadmap","https://neetcode.io"]]],
+["Recursion and dynamic programming","Recursion solves a problem by solving smaller copies of it, and every recursive function needs a base case. When the same subproblem repeats, store the results (memoization) or fill a table (dynamic programming). Write the brute-force recursion first, then add the cache.",[["NeetCode roadmap","https://neetcode.io"],["LeetCode problems","https://leetcode.com/problemset"]]]];
+const MORE=[
+{p:["Drop constants and small terms: 3n + 10 is O(n)","Nested loops multiply: n times n is O(n²)","Steps one after another add: O(n) + O(n) is still O(n)","Space counts too: extra arrays and recursion depth use memory"],c:`def has_pair(nums, target):   # O(n) time, O(n) space
+    seen = set()
+    for x in nums:
+        if target - x in seen:
+            return True
+        seen.add(x)
+    return False`,m:"Forgetting that slicing or joining strings inside a loop can secretly cost O(n) each time."},
+{p:["Strings are usually immutable: collect pieces in a list and join once","Use a hash map to count or look things up, a set when you only need yes or no","Sorting first (O(n log n)) can unlock a simple solution","Always test: empty input, one item, duplicates"],c:`from collections import Counter
+counts = Counter("the cat and the hat".split())
+# {'the': 2, 'cat': 1, 'and': 1, 'hat': 1}`,m:"Using a list for membership checks (O(n)) when a set gives O(1)."},
+{p:["Stack: push, pop, peek are all O(1)","Queue: use a deque, not a plain list, so removing from the front is O(1)","Linked list: a dummy head node removes many edge cases","Fast and slow pointers find cycles and middle nodes"],c:`def valid(s):
+    stack, pairs = [], {")": "(", "]": "[", "}": "{"}
+    for ch in s:
+        if ch in pairs:
+            if not stack or stack.pop() != pairs[ch]:
+                return False
+        else:
+            stack.append(ch)
+    return not stack`,m:"Losing the rest of a linked list by overwriting next before saving it."},
+{p:["DFS uses recursion or a stack. BFS uses a queue.","In graphs, mark a node visited when you add it to the queue","A grid is a graph: neighbors are up, down, left, right","In-order traversal of a binary search tree gives sorted order"],c:`from collections import deque
+def bfs(graph, start):
+    seen, q = {start}, deque([start])
+    while q:
+        node = q.popleft()
+        for nxt in graph[node]:
+            if nxt not in seen:
+                seen.add(nxt)
+                q.append(nxt)
+    return seen`,m:"Forgetting the visited set, which loops forever when the graph has a cycle."},
+{p:["Write the base case first, then the smaller subproblem, then combine","Memoize: cache results by the function’s arguments","Bottom-up DP fills a table from small to large","Define the state first: what changes between subproblems?"],c:`from functools import lru_cache
+@lru_cache(None)
+def climb(n):
+    if n <= 2:
+        return n
+    return climb(n - 1) + climb(n - 2)`,m:"Skipping the brute-force version. Get a correct slow answer first, then optimize."}];
+const PATS=[
+["Hash map","Beginner","Remember what you’ve seen for O(1) lookups.",["Two Sum|E","Valid Anagram|E","Contains Duplicate|E","Group Anagrams|M","Top K Frequent Elements|M","Longest Consecutive Sequence|M"]],
+["Two pointers","Beginner","Walk from both ends through sorted or linear data.",["Valid Palindrome|E","Move Zeroes|E","Remove Duplicates from Sorted Array|E","Container With Most Water|M","3Sum|M","Trapping Rain Water|H"]],
+["Sliding window","Beginner","Contiguous subarray or substring problems.",["Best Time to Buy and Sell Stock|E","Maximum Average Subarray I|E","Longest Substring Without Repeating Characters|M","Permutation in String|M","Longest Repeating Character Replacement|M","Minimum Window Substring|H"]],
+["Stack","Beginner","Matching pairs and “next greater” problems.",["Valid Parentheses|E","Next Greater Element I|E","Min Stack|M","Daily Temperatures|M","Evaluate Reverse Polish Notation|M","Largest Rectangle in Histogram|H"]],
+["Binary search","Builder","Halve the search space on sorted or monotonic data.",["Binary Search|E","Search a 2D Matrix|M","Koko Eating Bananas|M","Find Minimum in Rotated Sorted Array|M","Search in Rotated Sorted Array|M","Time Based Key-Value Store|M"]],
+["Linked list","Builder","Pointer manipulation and fast/slow pointers.",["Reverse Linked List|E","Merge Two Sorted Lists|E","Linked List Cycle|E","Remove Nth Node From End of List|M","Reorder List|M","LRU Cache|M"]],
+["Trees","Builder","DFS and BFS on hierarchies.",["Invert Binary Tree|E","Maximum Depth of Binary Tree|E","Binary Tree Level Order Traversal|M","Validate Binary Search Tree|M","Lowest Common Ancestor of a BST|M","Binary Tree Maximum Path Sum|H"]],
+["Heap","Builder","Need the smallest or largest item fast.",["Last Stone Weight|E","Kth Largest Element in an Array|M","K Closest Points to Origin|M","Task Scheduler|M","Merge k Sorted Lists|H","Find Median from Data Stream|H"]],
+["Graphs","Pro","Grids, connections, and dependencies.",["Number of Islands|M","Clone Graph|M","Rotting Oranges|M","Course Schedule|M","Pacific Atlantic Water Flow|M","Word Ladder|H"]],
+["Backtracking","Pro","Try a choice, recurse, undo it.",["Subsets|M","Permutations|M","Combination Sum|M","Word Search|M","Palindrome Partitioning|M","N-Queens|H"]],
+["Dynamic programming","Pro","Overlapping subproblems with a best answer.",["Climbing Stairs|E","House Robber|M","Coin Change|M","Unique Paths|M","Longest Increasing Subsequence|M","Word Break|M"]]];
+const QS=[
+["What is the average time to look up a key in a hash map?",["O(n)","O(log n)","O(1)","O(n²)"],2,"Hashing jumps straight to the bucket, so lookups are constant time on average."],
+["Which structure follows last in, first out?",["Queue","Stack","Hash map","Heap"],1,"A stack removes the most recently added item first."],
+["BFS on an unweighted graph is best for finding…",["The fewest-edges path","The longest path","A sorted order","All cycles"],0,"BFS explores level by level, so it reaches each node by the fewest edges first."],
+["Binary search requires the data to be…",["Unique","Positive numbers","Sorted or monotonic","Stored in a hash map"],2,"Each step discards half the range, which only works if order tells you which half to keep."],
+["Sliding window is a good fit for…",["Contiguous subarray or substring problems","Shortest paths in graphs","Sorting a list","Detecting cycles in trees"],0,"The window moves across the data once while you update a running answer."],
+["Dynamic programming applies when a problem has…",["No base case","Sorted input","Overlapping subproblems","Only one valid answer"],2,"Repeated subproblems let you store results instead of recomputing them."]];
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function more(i){const m=MORE[i];return`<div class="blk"><h3>Key points</h3><ul>${m.p.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class="blk"><h3>Example (Python)</h3><pre class="code">${esc(m.c)}</pre></div><div class="try"><b>Common mistake:</b> ${m.m}</div>`}
+const FULL={E:"Easy",M:"Medium",H:"Hard"},$=id=>document.getElementById(id);
+const hashT=+(location.hash.match(/t(\d)/)||[])[1];
+let tab=0,ti=isNaN(hashT)?(()=>{for(let j=0;j<5;j++)if(!Store.get("1-"+j))return j;return 0})():hashT,
+pi=(()=>{for(let i=0;i<PATS.length;i++)if(PATS[i][3].some((_,j)=>!Store.get("p"+i+"-"+j)))return i;return 0})(),qi=0,score=0,ans=null,ps=0;
+{const m=location.hash.match(/^#p(\d+)$/);if(m){tab=1;pi=+m[1]}}
+const TABS=["Learn","Practice","Check"];
+function tabs(){$("tabs").innerHTML=TABS.map((t,i)=>`<button class="chip" data-tab="${i}" aria-pressed="${i===tab}">${i+1}. ${t}</button>`).join("")}
+function learn(){const x=LESSONS[ti],last=ti===4;
+return`<div class="card"><p class="meta">Topic ${ti+1} of 5 · about 15 minutes · ${Imp.meter(IMPS[1][ti])}</p><h2 style="margin-top:0">${x[0]}</h2><p class="read">${x[1]}</p>${more(ti)}<div class="res">${x[2].map(r=>`<a href="${r[1]}" target="_blank" rel="noopener">${r[0]}</a>`).join("")}</div><div class="dots">${LESSONS.map((_,j)=>`<span class="${Store.get("1-"+j)?"on":""} ${j===ti?"cur":""}"></span>`).join("")}</div><div class="nav"><button class="ghost" data-act="prev" ${ti?"":"disabled"}>Back</button><button class="btn" data-act="done">${last?"Done. Go to practice":"Done, next topic"}</button></div></div>`}
+function practice(){const p=PATS[pi];
+const ord=PATS.map((_,i)=>i);if(ps)ord.sort((a,b)=>IMPP[b][0]-IMPP[a][0]||a-b);
+const chips=ord.map(i=>{const q=PATS[i];const c=q[3].filter((_,j)=>Store.get("p"+i+"-"+j)).length;return`<button class="chip" data-pat="${i}" aria-pressed="${i===pi}">${q[0]} ${c}/6</button>`}).join("");
+const g=["E","M","H"].map(d=>{const items=p[3].map((s,j)=>[...s.split("|"),j]).filter(a=>a[1]===d);
+return items.length?`<div class="grp ${d}">${FULL[d]}</div>`+items.map(a=>`<label><input type="checkbox" data-p="p${pi}-${a[2]}" ${Store.get("p"+pi+"-"+a[2])?"checked":""}>${a[0]}</label>`).join(""):""}).join("");
+return`<p class="sub">Go in order, easiest pattern first. Solve alone for 30 minutes before looking at a solution.</p><div class="chips"><button class="chip" data-psort="0" aria-pressed="${!ps}">Easiest first</button><button class="chip" data-psort="1" aria-pressed="${!!ps}">Most asked first</button></div><div class="chips">${chips}</div><div class="card"><p class="meta">${p[1]} level · ${Imp.meter(IMPP[pi][0])}</p><h2 style="margin-top:0">${p[0]}</h2><p class="sub">${p[2]}</p><p class="why">${IMPP[pi][1]}</p>${g}<p class="note" style="margin-top:16px">Move on when the Easy ones feel smooth without hints.</p><p class="fine">${IMP_NOTE}</p></div>`}
+function check(){
+if(qi>=QS.length){const ok=score>=5;if(ok)Store.set("1-quiz",true);return`<div class="card"><h2 style="margin-top:0">${ok?"Checkpoint passed":"Not quite yet"}</h2><p class="read">You scored ${score} out of ${QS.length}. ${ok?"Next, solve a new medium problem in 30 minutes, then move on to stage 3.":"Revisit the topics in Learn, then try again. 5 out of 6 passes."}</p><div class="row"><button class="btn" data-act="retry">Try again</button></div></div>`}
+const q=QS[qi];
+return`<div class="card"><p class="meta">Question ${qi+1} of ${QS.length}</p><h2 style="margin-top:0;font-size:1.3rem">${q[0]}</h2>${q[1].map((o,j)=>`<button class="opt ${ans===null?"":j===q[2]?"right":j===ans?"wrong":""}" data-opt="${j}" ${ans===null?"":"disabled"}>${o}</button>`).join("")}${ans===null?"":`<p class="fb ${ans===q[2]?"E":"H"}">${ans===q[2]?"Correct.":"Not this time."}</p><p class="sub">${q[3]}</p><button class="btn" data-act="nextq">${qi===QS.length-1?"See result":"Next question"}</button>`}</div>`}
+function draw(){tabs();$("panel").innerHTML=[learn,practice,check][tab]();paintStreak()}
+document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+if(d.tab!==undefined){tab=+d.tab;draw()}
+else if(d.psort!==undefined){ps=+d.psort;draw()}
+else if(d.pat!==undefined){pi=+d.pat;draw()}
+else if(d.act==="prev"){ti--;draw()}
+else if(d.act==="done"){Store.set("1-"+ti,true);if(ti<4)ti++;else tab=1;draw();scrollTo(0,0)}
+else if(d.opt!==undefined&&ans===null){ans=+d.opt;if(ans===QS[qi][2])score++;draw()}
+else if(d.act==="nextq"){qi++;ans=null;draw()}
+else if(d.act==="retry"){qi=0;score=0;ans=null;draw()}});
+document.addEventListener("change",e=>{const k=e.target.dataset.p;if(k){Store.set(k,e.target.checked);draw()}});
+mountTimer($("timer"));draw();
+</script>
+</body>
+</html>

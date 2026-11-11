@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Language revision | Ship It</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="top"><a href="../index.html">← Roadmap</a><span class="streak" id="streak"></span></header>
+<main class="wrap">
+<h1>Language revision</h1>
+<p class="sub">JavaScript, Python, C and C++ side by side. Do one concept at a time: read the four versions, then do the challenge in your main language first, and in one other after that.</p>
+<p class="meta">Your main language (it shows first everywhere)</p>
+<div class="chips" id="main"></div>
+<div class="tabs" id="tabs"></div>
+<div id="panel"></div>
+<div id="timer"></div>
+</main>
+<script src="../js/app.js"></script>
+<script>
+const LG=[["js","JavaScript"],["py","Python"],["c","C"],["cpp","C++"]];
+const TOP=[
+["Variables and types","Declare a number and a string, then print both.",{js:'let n = 5;\nconst s = "hi";',py:'n = 5\ns = "hi"',c:'int n = 5;\nconst char *s = "hi";',cpp:'int n = 5;\nstd::string s = "hi";'}],
+["Loops","Print the sum of 1 to 100.",{js:'for (let i = 0; i < 3; i++) console.log(i);',py:'for i in range(3):\n    print(i)',c:'for (int i = 0; i < 3; i++)\n    printf("%d\\n", i);',cpp:'for (int i = 0; i < 3; i++)\n    std::cout << i << "\\n";'}],
+["Functions","Write a function that returns the largest of three numbers.",{js:'const add = (a, b) => a + b;',py:'def add(a, b):\n    return a + b',c:'int add(int a, int b) {\n    return a + b;\n}',cpp:'auto add = [](int a, int b) {\n    return a + b;\n};'}],
+["Arrays and lists","Reverse a list without using a built-in reverse.",{js:'const a = [1, 2, 3];\na.push(4);',py:'a = [1, 2, 3]\na.append(4)',c:'int a[4] = {1, 2, 3};\n/* fixed size */',cpp:'std::vector<int> a{1, 2, 3};\na.push_back(4);'}],
+["Hash maps","Count how many times each word appears in a sentence.",{js:'const m = new Map();\nm.set("a", 1);\nm.get("a");',py:'m = {}\nm["a"] = 1\nm.get("a")',c:'/* no built-in map:\n   write your own hash table */',cpp:'std::unordered_map<std::string, int> m;\nm["a"] = 1;'}],
+["Strings","Check whether a string is a palindrome.",{js:'"hello".split("").reverse().join("")',py:'"hello"[::-1]',c:'char s[] = "hello";\n/* char array ending in \'\\0\' */',cpp:'std::string s = "hello";\nstd::reverse(s.begin(), s.end());'}],
+["Classes and structs","Make a Point type with a method that returns its distance from the origin.",{js:'class P {\n  constructor(x) { this.x = x; }\n}',py:'class P:\n    def __init__(self, x):\n        self.x = x',c:'struct P {\n    int x;\n};',cpp:'struct P {\n    int x;\n    P(int x) : x(x) {}\n};'}],
+["Errors and memory","Handle bad input gracefully. In C or C++, say who owns the memory.",{js:'try { JSON.parse(s); }\ncatch (e) { /* handle */ }',py:'try:\n    int(s)\nexcept ValueError:\n    pass',c:'int *p = malloc(sizeof(int));\n/* use p */\nfree(p);',cpp:'auto p = std::make_unique<int>(5);\n/* freed automatically */'}]];
+TOP.push(
+["Conditionals","Print FizzBuzz for 1 to 30.",{js:`if (x > 0) {
+  console.log("pos");
+} else if (x < 0) {
+  console.log("neg");
+}`,py:`if x > 0:
+    print("pos")
+elif x < 0:
+    print("neg")`,c:`if (x > 0) {
+    printf("pos\\n");
+} else if (x < 0) {
+    printf("neg\\n");
+}`,cpp:`if (x > 0) {
+    std::cout << "pos\\n";
+} else if (x < 0) {
+    std::cout << "neg\\n";
+}`}],
+["Input and output","Read two numbers and print their sum.",{js:`const name = require("fs").readFileSync(0, "utf8").trim();
+console.log("Hi " + name);`,py:`name = input()
+print("Hi", name)`,c:`char name[50];
+scanf("%49s", name);
+printf("Hi %s\\n", name);`,cpp:`std::string name;
+std::cin >> name;
+std::cout << "Hi " << name << "\\n";`}],
+["Sorting","Sort words by length, then alphabetically.",{js:`a.sort((x, y) => x - y);`,py:`a.sort()
+b = sorted(a, key=len)`,c:`qsort(a, n, sizeof(int), cmp);
+/* cmp compares two ints */`,cpp:`std::sort(a.begin(), a.end());`}],
+["Recursion","Write recursive Fibonacci, then make it fast with a cache.",{js:`const fact = n => n <= 1 ? 1 : n * fact(n - 1);`,py:`def fact(n):
+    return 1 if n <= 1 else n * fact(n - 1)`,c:`int fact(int n) {
+    return n <= 1 ? 1 : n * fact(n - 1);
+}`,cpp:`int fact(int n) {
+    return n <= 1 ? 1 : n * fact(n - 1);
+}`}]);
+const GO={js:["== vs ===","var, let, const and hoisting","this and arrow functions","Promises and async/await"],py:["Mutable default arguments","Indentation and scope","Everything is a reference","Comprehensions and slicing"],c:["Pointers and arrays","malloc and free","Null terminator in strings","Undefined behavior (out of bounds, uninitialized)"],cpp:["References vs pointers","RAII and smart pointers","STL containers and iterators","Copy vs move"]};
+GO.js.push("Array sort() compares as strings by default","Closures inside loops (let vs var)");
+GO.py.push("Division: / gives a float, // is integer division","Copying lists: shallow vs deep copy");
+GO.c.push("Integer overflow and type sizes","Arrays decay to pointers when passed to functions");
+GO.cpp.push("Iterator invalidation when a container changes","Object slicing and virtual destructors");
+const $=id=>document.getElementById(id),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const mainL=()=>(LG.find(l=>Store.get("main-"+l[0]))||LG[0])[0];
+const order=()=>{const m=mainL();return[...LG].sort((a,b)=>(b[0]===m)-(a[0]===m))};
+let tab=0,ti=(()=>{for(let i=0;i<TOP.length;i++)if(!Store.get("r"+i))return i;return 0})();
+function compare(){const t=TOP[ti];
+const chips=TOP.map((x,i)=>`<button class="chip" data-t="${i}" aria-pressed="${i===ti}">${Store.get("r"+i)?"✓ ":""}${i+1}</button>`).join("");
+return`<div class="chips">${chips}</div><div class="card"><p class="meta">Concept ${ti+1} of ${TOP.length} · about 10 minutes</p><h2 style="margin-top:0">${t[0]}</h2>${order().map(l=>`<div class="lang ${l[0]===mainL()?"main":""}">${l[1]}${l[0]===mainL()?" (main)":""}</div><pre class="code">${esc(t[2][l[0]])}</pre>`).join("")}<p class="read"><b>Challenge:</b> ${t[1]}</p><div class="nav"><button class="ghost" data-a="prev" ${ti?"":"disabled"}>Back</button><button class="btn" data-a="done">${ti===TOP.length-1?"Done. See gotchas":"Got it, next concept"}</button></div></div>`}
+function gotchas(){return`<p class="sub">Tick each one when you could explain it to someone else, with an example.</p>`+order().map(l=>`<div class="card" style="margin-bottom:14px"><h2 style="margin:0 0 8px;font-size:1.25rem">${l[1]}</h2>${GO[l[0]].map((g,j)=>`<label><input type="checkbox" data-g="g${l[0]}-${j}" ${Store.get("g"+l[0]+"-"+j)?"checked":""}>${g}</label>`).join("")}</div>`).join("")}
+function draw(){
+$("main").innerHTML=LG.map(l=>`<button class="chip" data-m="${l[0]}" aria-pressed="${l[0]===mainL()}">${l[1]}</button>`).join("");
+$("tabs").innerHTML=["Compare","Gotchas"].map((t,i)=>`<button class="chip" data-tab="${i}" aria-pressed="${i===tab}">${i+1}. ${t}</button>`).join("");
+$("panel").innerHTML=tab?gotchas():compare();paintStreak()}
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+if(d.m){LG.forEach(l=>Store.set("main-"+l[0],l[0]===d.m));draw()}
+else if(d.tab!==undefined){tab=+d.tab;draw()}
+else if(d.t!==undefined){ti=+d.t;draw()}
+else if(d.a==="prev"){ti--;draw()}
+else if(d.a==="done"){Store.set("r"+ti,true);if(ti<TOP.length-1)ti++;else tab=1;draw();scrollTo(0,0)}});
+document.addEventListener("change",e=>{const k=e.target.dataset.g;if(k){Store.set(k,e.target.checked)}});
+mountTimer($("timer"));draw();
+</script>
+</body>
+</html>

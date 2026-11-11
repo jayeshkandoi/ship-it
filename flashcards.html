@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flashcards | Ship It</title>
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="top"><a href="../index.html">← Home</a><span class="streak" id="streak"></span></header>
+<main class="wrap">
+<h1>Flashcards</h1>
+<p class="sub">Read the question, say the answer out loud, then flip. <b>Got it</b> moves a card up one level. Three levels means mastered. <b>Again</b> sends it back to level 0.</p>
+<div class="chips" id="decks"></div>
+<div class="bar"><i id="pg"></i></div><p class="note" id="pgt"></p>
+<div id="stage"></div>
+<div class="fcb" id="ctl"></div>
+<p class="note" style="text-align:center;margin-top:16px">Keys: Space to flip, ← for Again, → for Got it.</p>
+</main>
+<script src="../js/app.js"></script>
+<script>
+const DECKS=[
+["Big-O",[
+["How fast is a hash map lookup on average, and what is the worst case?","O(1) on average. The worst case is O(n) when many keys collide."],
+["What is the complexity of binary search, and what does it require?","O(log n). Each step halves the range, and the data must be sorted or monotonic."],
+["What does amortized O(1) mean when appending to a dynamic array?","Most appends are cheap. Occasionally the array resizes in O(n), but averaged over many appends the cost is O(1)."],
+["Why is merge sort O(n log n)?","There are log n levels of splitting, and merging each level costs O(n) work."],
+["Two nested loops over n items. What is the time complexity?","O(n²). The inner loop runs n times for each of the n outer iterations."],
+["What is the space cost of a recursive function n calls deep?","O(n) for the call stack, even if you allocate nothing else."],
+["Drop the constants: what is the Big-O of 3n + 10?","O(n). Big-O ignores constants and smaller terms."]]],
+["Data structures",[
+["Stack vs queue: what is the difference?","A stack is last in, first out. A queue is first in, first out."],
+["When is a hash set the right choice?","When you only need to know whether you have seen something. Membership is O(1) on average."],
+["Linked list vs array: compare them.","Array: O(1) access by index, O(n) insert in the middle. Linked list: O(1) insert at a known node, O(n) to find it."],
+["What is a heap good for?","Getting the smallest or largest item fast. Peek is O(1), push and pop are O(log n). Used for top k and priority queues."],
+["What does an in-order traversal of a binary search tree give you?","The values in sorted order."],
+["BFS or DFS: which data structure does each use?","BFS uses a queue. DFS uses a stack or recursion."],
+["What is a trie used for?","Prefix search and autocomplete. Each node represents a character on the path to a word."]]],
+["Patterns",[
+["Sorted array, find a pair that sums to a target.","Two pointers from both ends, or a hash map of values you have seen."],
+["Longest substring with no repeated characters.","Sliding window, tracking characters in a set or the last seen position in a map."],
+["Shortest path in an unweighted graph.","BFS. The first time it reaches a node is by the fewest edges."],
+["Find the next greater element for each item.","A monotonic stack."],
+["Top k most frequent items.","Count with a hash map, then keep a heap of size k, or use bucket sort."],
+["Generate all subsets or permutations.","Backtracking: choose, recurse, then undo the choice."],
+["Count ways or find the minimum cost with overlapping subproblems.","Dynamic programming. Define the state, write the recurrence, then memoize or fill a table."]]],
+["Git",[
+["How do you stage all changes?","Add everything in the current folder to the next commit.","git add ."],
+["Create and switch to a new branch.","Use switch with the -c flag.","git switch -c feature-login"],
+["Undo a commit without rewriting history.","Revert creates a new commit that reverses the old one.","git revert <commit-hash>"],
+["Merge vs rebase?","Merge keeps both histories and adds a merge commit. Rebase replays your commits on top of another branch for a straight history. Never rebase branches other people use."],
+["What does git stash do?","Sets uncommitted changes aside so you can switch tasks. Bring them back with:","git stash pop"],
+["How do you keep secrets out of Git?","List them in a .gitignore file before your first commit, for example:",".env\nnode_modules/"]]],
+["Web and HTTP",[
+["401 vs 403?","401 means you are not logged in. 403 means you are logged in but not allowed."],
+["GET vs POST?","GET reads data and is safe to repeat. POST creates data."],
+["What happens when you open a URL?","DNS finds the server, the browser opens a secure connection, sends an HTTP request, the server responds, and the browser renders the page."],
+["What is an API?","A set of URLs (endpoints) a client can call to read or change data, usually returning JSON."],
+["What is a cookie for?","It holds a small ID so the server can recognize you across requests."],
+["What do 404 and 500 mean?","404: the resource was not found. 500: the server failed."]]],
+["Language gotchas",[
+["JavaScript: == vs ===?","=== compares without type conversion, so prefer it.","0 == \"\"    // true\n0 === \"\"   // false"],
+["JavaScript: what does [10, 2, 1].sort() return?","It sorts as strings by default. Pass a comparator for numbers.","[10, 2, 1].sort()                // [1, 10, 2]\n[10, 2, 1].sort((a, b) => a - b) // [1, 2, 10]"],
+["Python: why are mutable default arguments a bug?","The default is created once and shared by every call. Use None and create the list inside.","def add(x, items=None):\n    items = items if items is not None else []\n    items.append(x)\n    return items"],
+["Python: / vs //?","/ is true division and returns a float. // is floor division."],
+["C: why does \"hello\" take 6 bytes?","A null terminator (a zero byte) marks the end of the string."],
+["C: what happens when you pass an array to a function?","It decays to a pointer, so the function does not know the length. Pass the size too."],
+["C++: reference vs pointer?","A reference is an alias that cannot be null or reseated. A pointer can be null and can point elsewhere."],
+["C++: what is RAII?","Resources are tied to object lifetime and released in the destructor. Prefer unique_ptr over raw new and delete."]]]];
+const $=id=>document.getElementById(id),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let d=0,cur=-1,last=-1,busy=false,flipped=false;
+const CK=()=>Store.d.__cards=Store.d.__cards||{};
+const box=(a,i)=>CK()[a+"-"+i]||0;
+const mastered=a=>DECKS[a][1].filter((_,i)=>box(a,i)>=3).length;
+function pick(){const c=[];DECKS[d][1].forEach((_,i)=>{if(box(d,i)<3)c.push(i)});if(!c.length)return -1;
+const m=Math.min(...c.map(i=>box(d,i)));let p=c.filter(i=>box(d,i)===m&&i!==last);if(!p.length)p=c.filter(i=>i!==last);if(!p.length)p=c;return p[Math.random()*p.length|0]}
+function show(anim){
+$("decks").innerHTML=DECKS.map((x,i)=>`<button class="chip" data-d="${i}" aria-pressed="${i===d}">${x[0]} ${mastered(i)}/${x[1].length}</button>`).join("");
+const n=DECKS[d][1].length,m=mastered(d);$("pg").style.width=(m/n*100)+"%";$("pgt").textContent=m+" of "+n+" mastered in this deck";
+cur=pick();flipped=false;const s=$("stage");
+if(cur<0){s.innerHTML=`<div class="done-card"><h2 style="margin:0 0 6px">Deck mastered</h2><p class="sub" style="margin-inline:auto">You know every card in ${DECKS[d][0]}. Come back in a few days to keep it fresh.</p><button class="btn" data-a="reset">Practice again</button></div>`;$("ctl").innerHTML="";return}
+const c=DECKS[d][1][cur],b=box(d,cur);
+s.innerHTML=`<div class="lvdots" role="img" aria-label="Memory level ${b} of 3">${[0,1,2].map(k=>`<i class="${k<b?"on":""}"></i>`).join("")}</div><div class="fc ${anim?"enter":""}" id="fc" tabindex="0" role="button" aria-label="Flip card"><div class="fc-in"><div class="face front"><span class="tag2">${DECKS[d][0]} · card ${cur+1}</span><span class="wm">?</span><div class="q-text">${esc(c[0])}</div><span class="hint">Tap or press Space to flip</span></div><div class="face back"><span class="tag2">Answer</span><span class="wm">A</span><div class="a-text">${esc(c[1])}</div>${c[2]?`<pre class="code">${esc(c[2])}</pre>`:""}</div></div></div>`;
+$("ctl").innerHTML=`<button class="btn again" data-a="again" disabled>← Again</button><button class="ghost btn" data-a="flip">Flip</button><button class="btn got" data-a="got" disabled>Got it →</button>`}
+function flip(){const f=$("fc");if(!f||busy)return;flipped=!flipped;f.classList.toggle("flipped",flipped);document.querySelectorAll("[data-a=again],[data-a=got]").forEach(b=>b.disabled=!flipped)}
+function rate(ok){const f=$("fc");if(!f||!flipped||busy)return;busy=true;f.classList.add(ok?"out-r":"out-l");
+setTimeout(()=>{const key="f"+d+"-"+cur;
+if(ok){const nb=Math.min(3,box(d,cur)+1);CK()[d+"-"+cur]=nb;Store.save();if(nb===3)Store.set(key,true)}
+else{CK()[d+"-"+cur]=0;Store.save();if(Store.get(key))Store.set(key,false)}
+last=cur;busy=false;show(true);const n=DECKS[d][1].length;if(ok&&mastered(d)===n){confetti();Toast.say("Deck mastered: "+DECKS[d][0])}},330)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a],[data-d]");
+if(b){const a=b.dataset;if(a.d!==undefined){d=+a.d;last=-1;show(true)}else if(a.a==="flip")flip();else if(a.a==="got")rate(true);else if(a.a==="again")rate(false);else if(a.a==="reset"){DECKS[d][1].forEach((_,i)=>{CK()[d+"-"+i]=0;Store.set("f"+d+"-"+i,false)});Store.save();last=-1;show(true)}return}
+if(e.target.closest("#fc"))flip()});
+document.addEventListener("keydown",e=>{if(e.target.tagName==="BUTTON")return;
+if(e.key===" "||e.key==="Enter"){e.preventDefault();flip()}else if(e.key==="ArrowRight")rate(true);else if(e.key==="ArrowLeft")rate(false)});
+show(true);paintStreak();
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Study squad | Ship It</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="top"><a href="../index.html">← Roadmap</a><span class="streak" id="streak"></span></header>
+<main class="wrap">
+<h1>Study squad</h1>
+<p class="sub">Learning is easier with people to race and to answer to. Pick two to four friends, swap codes, and see who earns the most XP this week.</p>
+
+<div id="join"></div>
+
+<div class="card" style="margin-top:24px">
+<h2 style="margin-top:0;font-size:1.3rem">Your card</h2>
+<label for="nm" style="padding:0 0 6px;font-weight:700">Your name (shown to friends)</label>
+<div class="row" style="margin-top:0">
+<input class="field" id="nm" maxlength="20" autocomplete="nickname" placeholder="e.g. Riya" style="flex:1 1 200px;width:auto">
+<button class="ghost" id="savenm">Save name</button>
+</div>
+<p class="note" id="mine" style="margin-top:14px"></p>
+<div class="row">
+<button class="btn" id="cplink">Copy invite link</button>
+<button class="ghost" id="cpcode">Copy my code</button>
+</div>
+<p class="msg" id="msg1" role="status"></p>
+</div>
+
+<div class="card" style="margin-top:20px">
+<h2 style="margin-top:0;font-size:1.3rem">Add a friend</h2>
+<p class="sub">Open the invite link they sent, or paste their code here. Paste a newer code any time to update their numbers.</p>
+<label for="code" style="padding:0 0 6px;font-weight:700">Friend’s code</label>
+<textarea class="field" id="code" placeholder="SHIPIT1...."></textarea>
+<div class="row"><button class="btn" id="addf">Add to my squad</button></div>
+<p class="msg" id="msg2" role="status"></p>
+</div>
+
+<h2>Leaderboard</h2>
+<div class="chips" id="modes"></div>
+<div id="gap"></div>
+<div class="card"><ol class="lb" id="lb"></ol></div>
+
+<h2>How to run a squad</h2>
+<div class="card">
+<p style="margin-top:0"><b>Keep it small.</b> Two to four people is enough. Pick friends who will actually check in.</p>
+<p><b>Same weekly target.</b> For example, five practice problems each (50 XP). The weekly board resets every Monday, so a late joiner is never far behind.</p>
+<p><b>Swap codes every Sunday.</b> Send your invite link in your group chat and open theirs. Takes about a minute.</p>
+<p class="note" style="margin-bottom:0">This site has no server, so a friend’s numbers only change when they send you a fresh code. Codes can be edited by whoever holds them, so treat the board as friendly competition, not a ranking you can trust to the last point.</p>
+</div>
+</main>
+<script src="../js/app.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let mode=0;
+const monOf=d=>{const x=new Date(d+"T00:00:00Z"),o=(x.getUTCDay()+6)%7;x.setUTCDate(x.getUTCDate()-o);return x.toISOString().slice(0,10)};
+const wkOf=f=>f.me||monOf(f.d)===Week.mon()?f.w:0;
+function ago(f){if(f.me)return"live";const g=Store.gap(Store.day(),f.d);return g<=0?"updated today":g===1?"updated yesterday":"updated "+g+" days ago"}
+function copy(t,el,ok){const done=()=>{el.textContent=ok},fail=()=>{el.textContent="Copy failed. Select the text and copy it yourself."};
+if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,()=>fb())}else fb();
+function fb(){try{const a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;opacity:0";document.body.appendChild(a);a.select();const r=document.execCommand("copy");a.remove();r?done():fail()}catch(e){fail()}}}
+function needName(){if(Squad.name())return false;$("msg1").textContent="Add your name first so your friends know who you are.";$("nm").focus();return true}
+function list(){const l=[Object.assign({me:true},Squad.me())],f=Squad.friends();for(const k in f)l.push(f[k]);
+l.forEach(x=>x.pts=mode?x.x:wkOf(x));return l.sort((a,b)=>b.pts-a.pts||b.x-a.x||(a.me?-1:b.me?1:0))}
+function draw(){
+$("nm").value=Squad.name();
+const m=Squad.me();$("mine").textContent="Level "+lvOf(m.x)+" · "+m.x+" XP total · "+m.w+" XP this week · "+m.s+"-day streak";
+$("modes").innerHTML=["This week","All time"].map((t,i)=>`<button class="chip" data-mode="${i}" aria-pressed="${i===mode}">${t}</button>`).join("");
+const l=list(),mi=l.findIndex(x=>x.me),label=mode?"XP total":"XP this week";
+let gap="";
+if(l.length===1)gap="Add a friend to start competing.";
+else if(mi===0){const d=l[0].pts-l[1].pts;gap=d>0?"You lead by "+d+" XP. Keep going.":"You are tied for the lead. One problem breaks it."}
+else{const d=l[mi-1].pts-l[mi].pts;gap="You are "+d+" XP behind "+l[mi-1].n+". That is about "+Math.max(1,Math.ceil(d/10))+" practice problem"+(d>10?"s":"")+"."}
+$("gap").innerHTML=`<p class="gap">${escH(gap)}</p>`;
+$("lb").innerHTML=l.map((x,i)=>{const lv=lvOf(x.x);
+return`<li class="${x.me?"me":""}"><span class="rk">${i+1}</span><span><span class="nm">${escH(x.n)}${x.me?" (you)":""}</span><br><span class="st">Lv ${lv} ${escH(nm(lv))} · ${x.t}/30 steps · ${x.p} problems · ${x.s}-day streak</span><br><span class="st">${ago(x)}${x.me?"":` · <button class="rm" data-rm="${escH(x.i)}">Remove</button>`}</span></span><span class="pts">${x.pts}<small>${label}</small></span></li>`}).join("");
+paintStreak()}
+function addCode(raw,out){const f=Squad.parse(raw);
+if(!f){out.textContent="That code doesn’t look right. Paste the whole code, starting with SHIPIT1.";return false}
+const r=Squad.add(f);
+out.textContent=r==="self"?"That is your own code.":r==="updated"?f.n+" updated.":f.n+" joined your squad.";return r!=="self"}
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+if(b.id==="savenm"){Squad.setName($("nm").value);$("msg1").textContent=Squad.name()?"Saved.":"Name cleared.";draw()}
+else if(b.id==="cplink"){if(!needName())copy(Squad.link(),$("msg1"),"Invite link copied. Send it to a friend.")}
+else if(b.id==="cpcode"){if(!needName())copy(Squad.code(),$("msg1"),"Code copied. Send it to a friend.")}
+else if(b.id==="addf"){if(addCode($("code").value,$("msg2"))){$("code").value="";draw()}}
+else if(b.dataset.mode!==undefined){mode=+b.dataset.mode;draw()}
+else if(b.dataset.rm!==undefined){Squad.remove(b.dataset.rm);draw()}
+else if(b.id==="joinyes"){addCode(b.dataset.c,$("msg2"));$("join").innerHTML="";draw()}
+else if(b.id==="joinno"){$("join").innerHTML=""}});
+$("nm").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("savenm").click()}});
+(function(){const m=location.hash.match(/^#join=(.+)$/);if(!m)return;
+const raw=decodeURIComponent(m[1]),f=Squad.parse(raw);
+try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}
+if(!f){$("join").innerHTML=`<p class="gap">That invite link looks damaged. Ask your friend to send it again.</p>`;return}
+if(f.i===Squad.id()){return}
+$("join").innerHTML=`<div class="card focus"><h2 style="margin-top:0;font-size:1.3rem">${escH(f.n)} invited you</h2><p class="read" style="margin:0">Level ${lvOf(f.x)} · ${f.x} XP · ${f.s}-day streak</p><div class="row"><button class="btn" id="joinyes" data-c="${escH(raw.trim())}">Add to my squad</button><button class="ghost" id="joinno">Not now</button></div></div>`})();
+draw();
+</script>
+</body>
+</html>

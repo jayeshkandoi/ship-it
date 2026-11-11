@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stage 1: Foundations | Ship It</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="top"><a href="../index.html">← Roadmap</a><span class="streak" id="streak"></span></header>
+<main class="wrap">
+<h1>Foundations</h1>
+<p class="sub">Five topics, one at a time. You already know the languages, so this stage is about the tools every developer uses daily.</p>
+<div class="chips" id="chips"></div>
+<div id="panel"></div>
+<div id="timer"></div>
+</main>
+<script src="../js/app.js"></script>
+<script>
+const L=[
+{t:"Variables, loops, functions",intro:"You know these already. Revise them in your languages using the side-by-side page, then come back.",link:["../stages/revision.html","Open language revision"],blocks:[["What to cover","Variables and types, loops, functions, and passing arguments in JavaScript, Python, C and C++."]],try:"Finish concepts 1 to 3 on the revision page, including the challenges."},
+{t:"Data types and collections",intro:"Arrays, hash maps, strings, and structs are the raw material for every algorithm later.",link:["../stages/revision.html","Open language revision"],blocks:[["What to cover","Arrays and lists, hash maps, strings, and classes or structs in all four languages."]],try:"Finish concepts 4 to 7 on the revision page, including the challenges."},
+{t:"Git and GitHub basics",intro:"Git records the history of your project so you can undo mistakes and work with others. GitHub stores a copy online and is your public portfolio.",blocks:[
+["The daily loop","Check what changed, stage it, save a snapshot with a message.","git init\ngit status\ngit add .\ngit commit -m \"Add login form\"\ngit log --oneline"],
+["Branches","A branch is a safe copy to try ideas. Merge it back when it works.","git switch -c feature-login\n# ...edit, add, commit...\ngit switch main\ngit merge feature-login"],
+["Connect to GitHub","Create an empty repo on GitHub, then link and push.","git remote add origin https://github.com/YOU/REPO.git\ngit push -u origin main\ngit pull\ngit clone https://github.com/YOU/REPO.git"],
+["Undo safely","Discard changes in one file, or undo a commit by adding a new one.","git restore notes.txt\ngit revert <commit-hash>"],
+["Good commit messages","Short, present tense, say what changed: “Fix empty cart crash”. Not “stuff” or “update”. Small commits are easier to understand and undo."],
+["Ignore files","Never commit secrets or generated folders. List them in a .gitignore file.","node_modules/\n.env\n__pycache__/"]],
+try:"Make a new project folder, create a repo, make 3 commits on a branch, merge it, and push to GitHub."},
+{t:"Terminal and file system",intro:"The terminal is faster than clicking once you know ten commands. Everything else in this path (Git, Docker, servers) runs through it.",blocks:[
+["Move around","See where you are, list files, change folder.","pwd\nls -la\ncd projects\ncd ..\ncd ~"],
+["Create and organize","Make folders and files, copy, move, rename.","mkdir app\ntouch app/main.py\ncp main.py backup.py\nmv backup.py old.py"],
+["Delete (carefully)","There is no recycle bin. Check the path first.","rm old.py\nrm -r old_folder"],
+["Read and search","Print a file, search text, chain commands with a pipe.","cat notes.txt\ngrep -rn \"TODO\" .\nls | wc -l"],
+["Save output to a file","> overwrites, >> appends.","echo \"hello\" > hello.txt\necho \"more\" >> hello.txt"],
+["Shortcuts that save hours","Tab completes names. Up arrow repeats the last command. Ctrl+R searches history. Ctrl+C stops a running program. Add --help to most commands to see options."]],
+try:"Build the folder structure project/src, project/tests, project/README.md using only the terminal. Then use grep to find a word across all files."},
+{t:"How the web works",intro:"Every web app is a conversation: a client asks, a server answers. Understanding this makes frontend, backend, and debugging far easier.",blocks:[
+["What happens when you open a URL","1. The browser asks DNS for the server’s IP address. 2. It opens a secure connection (TCP and TLS). 3. It sends an HTTP request. 4. The server runs code, maybe talks to a database, and sends a response. 5. The browser renders the HTML, CSS and JavaScript."],
+["A request and a response","The request says what you want. The response gives a status code and the content.","GET /users/42 HTTP/1.1\nHost: example.com\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\": 42, \"name\": \"Asha\"}"],
+["The methods you need","GET reads data. POST creates data. PUT or PATCH updates it. DELETE removes it. Together with URLs, these form a REST API."],
+["Status codes in one line","2xx worked, 3xx redirected, 4xx your request was wrong (404 not found, 401 not logged in, 403 not allowed), 5xx the server failed."],
+["Client, server, API, JSON","The client is the browser or app. The server holds logic and data. An API is the set of URLs the client can call. JSON is the usual text format for the data."],
+["See it yourself","curl prints the raw response. In the browser, open DevTools and the Network tab.","curl -i https://example.com"]],
+try:"Run curl -i on a website, find the status code and one header. Then open DevTools, reload any page, and find the slowest request."}];
+L[2].blocks.push(
+["Pull requests","On GitHub, push a branch and open a pull request. Teammates review the changes before they are merged. Do this on your own repos too; it builds the habit employers expect."],
+["Fix a merge conflict","If two branches change the same line, Git marks both versions inside the file. Edit the file to keep what you want, delete the conflict markers Git inserted, then add and commit."],
+["Handy extras","diff shows what changed, stash sets unfinished work aside, and blame shows who last changed each line.","git diff\ngit stash\ngit stash pop\ngit blame app.py"]);
+L[3].blocks.push(
+["Permissions","ls -l shows who can read, write, and run a file. chmod changes it.","chmod +x script.sh\n./script.sh"],
+["Environment variables","Settings your programs read, such as API keys. Never commit them to Git.","export API_KEY=abc123\necho $API_KEY"],
+["Find things","find locates files by name. which shows where a command lives.","find . -name \"*.py\"\nwhich python"],
+["Write your first script","Put commands in a file so you can repeat them.","#!/bin/bash\nmkdir -p build\necho \"done\""]);
+L[4].blocks.push(
+["HTML, CSS, JavaScript","HTML is the structure, CSS is the look, and JavaScript is the behavior. Browsers run all three."],
+["Cookies and sessions","HTTP forgets you between requests. A cookie holds a small ID that the server uses to remember who you are."],
+["HTTPS","The S means traffic is encrypted. Never send passwords over plain HTTP."],
+["Frontend, backend, database","The frontend runs in the browser. The backend runs on a server and enforces the rules. The database stores data permanently."]);
+const $=id=>document.getElementById(id),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const h=+(location.hash.match(/t(\d)/)||[])[1];
+let ti=!isNaN(h)&&h<5?h:(()=>{for(let j=0;j<5;j++)if(!Store.get("0-"+j))return j;return 0})();
+function draw(){const x=L[ti];
+$("chips").innerHTML=L.map((_,i)=>`<button class="chip" data-t="${i}" aria-pressed="${i===ti}">${Store.get("0-"+i)?"✓ ":""}${i+1}</button>`).join("");
+$("panel").innerHTML=`<div class="card"><p class="meta">Topic ${ti+1} of 5 · about ${ti<2?10:40} minutes</p><h2 style="margin-top:0">${x.t}</h2><p class="read">${x.intro}</p>${x.link?`<p><a class="btn" href="${x.link[0]}">${x.link[1]}</a></p>`:""}${x.blocks.map(b=>`<div class="blk"><h3>${b[0]}</h3><p>${b[1]}</p>${b[2]?`<pre class="code">${esc(b[2])}</pre>`:""}</div>`).join("")}<div class="try"><b>Try it:</b> ${x.try}</div><div class="nav" style="margin-top:20px"><button class="ghost" data-a="prev" ${ti?"":"disabled"}>Back</button><button class="btn" data-a="done">${ti===4?"Done. Start stage 2":"Done, next topic"}</button></div></div>`;paintStreak()}
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+if(d.t!==undefined){ti=+d.t;draw()}else if(d.a==="prev"){ti--;draw()}
+else if(d.a==="done"){Store.set("0-"+ti,true);if(ti<4){ti++;draw();scrollTo(0,0)}else location.href="dsa.html"}});
+mountTimer($("timer"));draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cheat sheets | Ship It</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="top"><a href="../index.html">← Roadmap</a><span class="streak" id="streak"></span></header>
+<main class="wrap">
+<h1>Cheat sheets</h1>
+<p class="sub">Quick lookups for when you’re mid-problem. Don’t memorize everything. Come back here.</p>
+<div class="tabs" id="tabs" style="flex-wrap:wrap"></div>
+<div id="panel"></div>
+</main>
+<script src="../js/app.js"></script>
+<script>
+const T=[
+["Big-O",[
+["Data structure operations",["Structure","Access","Search","Insert","Delete"],[["Array","O(1)","O(n)","O(n)","O(n)"],["Dynamic array","O(1)","O(n)","O(1) at end*","O(n)"],["Linked list","O(n)","O(n)","O(1) at known node","O(1) at known node"],["Hash map (average)","-","O(1)","O(1)","O(1)"],["Stack / queue","-","O(n)","O(1)","O(1)"],["Balanced BST","-","O(log n)","O(log n)","O(log n)"],["Heap","O(1) min","O(n)","O(log n)","O(log n)"]],"*amortized"],
+["Sorting algorithms",["Algorithm","Best","Average","Worst","Space","Stable"],[["Bubble","O(n)","O(n²)","O(n²)","O(1)","Yes"],["Insertion","O(n)","O(n²)","O(n²)","O(1)","Yes"],["Merge","O(n log n)","O(n log n)","O(n log n)","O(n)","Yes"],["Quick","O(n log n)","O(n log n)","O(n²)","O(log n)","No"],["Heap","O(n log n)","O(n log n)","O(n log n)","O(1)","No"]]],
+["How fast each class grows (n = 1,000)",["Class","Operations","Feels like"],[["O(1)","1","Instant"],["O(log n)","10","Instant"],["O(n)","1,000","Fast"],["O(n log n)","10,000","Fast"],["O(n²)","1,000,000","Slow past 10⁴ items"],["O(2ⁿ)","More than atoms in the universe","Only for tiny n"]]]]],
+["Which pattern?",[
+["Clue in the problem → pattern to try",["If you see…","Try…"],[["Sorted array, find a pair or target","Two pointers or binary search"],["Longest or shortest substring or subarray with a condition","Sliding window"],["“Have I seen this before?” or counting things","Hash map"],["Matching brackets, undo, next greater element","Stack"],["Top k, k-th largest, running median","Heap"],["Shortest path, fewest steps, level by level","BFS"],["All combinations, permutations, or subsets","Backtracking"],["Count ways, minimum cost, overlapping choices","Dynamic programming"],["Tree questions","DFS with recursion"],["Islands, connected groups, dependencies","Graph DFS or BFS"],["Search a range of possible answers","Binary search on the answer"],["Linked list cycle or middle node","Fast and slow pointers"]]],
+["A 5-step routine for any problem",["Step","What to do"],[["1","Restate the problem and check an example by hand."],["2","Say the brute-force solution and its Big-O."],["3","Look for the clue above and pick a pattern."],["4","Code it, then test with an empty input, one item, and a large input."],["5","State the final time and space complexity."]]]]],
+["SQL",[
+["Everyday queries",["Task","Query"],[["Pick columns","SELECT name, age FROM users;"],["Filter rows","SELECT * FROM users WHERE age >= 18;"],["Sort and limit","SELECT * FROM users ORDER BY age DESC LIMIT 10;"],["Count by group","SELECT city, COUNT(*) FROM users GROUP BY city;"],["Filter groups","... GROUP BY city HAVING COUNT(*) > 5;"],["Join two tables","SELECT u.name, o.total FROM users u JOIN orders o ON o.user_id = u.id;"],["Keep rows with no match","... FROM users u LEFT JOIN orders o ON o.user_id = u.id;"]]],
+["Changing data",["Task","Query"],[["Add a row","INSERT INTO users (name, age) VALUES ('Asha', 25);"],["Update rows","UPDATE users SET age = 26 WHERE id = 1;"],["Delete rows","DELETE FROM users WHERE id = 1;"],["Make a table","CREATE TABLE users (id SERIAL PRIMARY KEY, name TEXT NOT NULL, age INT);"],["Speed up lookups","CREATE INDEX idx_users_age ON users (age);"]],"Always include WHERE on UPDATE and DELETE."]]],
+["HTTP",[
+["Methods",["Method","Use","Safe to repeat?"],[["GET","Read data","Yes"],["POST","Create data","No"],["PUT","Replace data","Yes"],["PATCH","Change part of data","Usually"],["DELETE","Remove data","Yes"]]],
+["Status codes",["Code","Meaning"],[["200","OK"],["201","Created"],["204","No content"],["301","Moved permanently"],["400","Bad request"],["401","Not logged in"],["403","Logged in but not allowed"],["404","Not found"],["429","Too many requests"],["500","Server error"],["503","Service unavailable"]]]]]];
+T[0][1].push(["Common algorithms",["Algorithm","Time","Space"],[["Binary search","O(log n)","O(1)"],["BFS or DFS on a graph","O(V + E)","O(V)"],["Merge sort","O(n log n)","O(n)"],["Building a heap","O(n)","O(1)"],["Memoized Fibonacci","O(n)","O(n)"],["Generating all subsets","O(2ⁿ)","O(n)"],["Generating all permutations","O(n!)","O(n)"]],"V is vertices (nodes), E is edges."]);
+T.push(["Git",[["Everyday commands",["Task","Command"],[["Start a repo","git init"],["Copy a repo","git clone URL"],["See changes","git status"],["Stage everything","git add ."],["Save a snapshot","git commit -m \"message\""],["View history","git log --oneline"],["New branch","git switch -c name"],["Switch branch","git switch name"],["Merge a branch","git merge name"],["Upload","git push"],["Download","git pull"],["Discard file changes","git restore file"],["Undo a commit safely","git revert hash"],["Set work aside","git stash"]]]]]);
+T.push(["Terminal",[["Core commands",["Task","Command"],[["Where am I","pwd"],["List files","ls -la"],["Change folder","cd folder"],["Make a folder","mkdir name"],["Make a file","touch file"],["Copy","cp a b"],["Move or rename","mv a b"],["Delete (no undo)","rm file"],["Print a file","cat file"],["Search text","grep -rn \"word\" ."],["Find files","find . -name \"*.py\""],["Make executable","chmod +x file"]]]]]);
+const $=id=>document.getElementById(id),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let k=0;
+function draw(){$("tabs").innerHTML=T.map((t,i)=>`<button class="chip" data-i="${i}" aria-pressed="${i===k}">${t[0]}</button>`).join("");
+$("panel").innerHTML=T[k][1].map(s=>`<h2 style="font-size:1.25rem;margin:28px 0 10px">${s[0]}</h2><div class="tw"><table><thead><tr>${s[1].map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${s[2].map(r=>`<tr>${r.map((c,j)=>`<td>${j&&["SQL","Git","Terminal"].includes(T[k][0])?`<code>${esc(c)}</code>`:esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>${s[3]?`<p class="note">${s[3]}</p>`:""}`).join("");paintStreak()}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(b){k=+b.dataset.i;draw()}});
+draw();
+</script>
+</body>
+</html>

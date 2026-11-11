@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ship It: learn software development one small step at a time</title>
+<meta name="description" content="A cinematic, step-by-step path from beginner to job-ready developer, built for people who get distracted easily.">
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top"><b>Ship It</b><span class="streak" id="streak"></span></header>
+<section class="hero"><pre class="ghost-code" aria-hidden="true">def two_sum(nums, target):
+    seen = {}
+    for i, x in enumerate(nums):
+        if target - x in seen:
+            return [seen[target - x], i]
+        seen[x] = i</pre><div class="in" id="hero"></div></section>
+<main class="wide">
+<h2 class="rowh">Your path <small>six stages, beginner to job-ready</small></h2>
+<div class="scroller" id="stages"></div>
+<h2 class="rowh">Patterns to master <small id="patsub">easiest first</small><button class="chip" id="patsort" data-psort="1">Sort by most asked</button></h2>
+<div class="scroller" id="pats"></div>
+<p class="fine" id="patfine"></p>
+<h2 class="rowh">Tools <small>when you need a quick boost</small></h2>
+<div class="scroller" id="tools"></div>
+<h2 class="rowh">Projects you will build <small>each one goes on your resume</small></h2>
+<div class="scroller" id="projs"></div>
+<div style="max-width:720px">
+<h2 class="rowh" id="timerh">Focus timer</h2>
+<div id="timer"></div>
+<h2 class="rowh" id="pathh">All steps</h2>
+<p class="sub">Tick each step as you finish it. Your current stage is open. The bars show how often each topic is asked in interviews and used on the job.</p>
+<div id="path"></div>
+<h2 class="rowh">If you lose focus</h2>
+<div class="card"><p style="margin-top:0"><b>Shrink the step.</b> Read just one paragraph, or solve just one easy problem.</p><p><b>Reset.</b> Stand up, drink water, come back in 3 minutes.</p><p><b>Same time, same place.</b> Attach your hour to something you already do, like after breakfast.</p><p><b>Make progress visible.</b> Tick topics as you finish them and watch the bar fill.</p><p style="margin-bottom:0"><b>Missed a day?</b> Nothing is lost. Your progress stays, and the streak simply restarts.</p></div>
+</div>
+</main>
+<script src="js/app.js"></script>
+<script>
+const S=[
+["Foundations","Programming, Git, and how the web works",["Variables, loops, functions","Data types and collections","Git and GitHub basics","Terminal and file system","How the web works"],"stages/foundations.html"],
+["Data structures and algorithms","Solve problems the way interviewers expect",["Big-O and complexity","Arrays, strings, hash maps","Stacks, queues, linked lists","Trees and graphs","Recursion and dynamic programming"],"stages/dsa.html"],
+["Web and backend","Build apps people can use",["HTML, CSS, responsive layout","JavaScript in the browser","React fundamentals","REST APIs","Authentication and sessions"]],
+["Data and systems","Store data and ship reliably",["SQL and Postgres","Indexes and query design","Caching and queues","Docker and cloud basics","Testing and CI/CD"]],
+["Portfolio and capstone","Build one project end to end",["Pick and scope a project","Design docs and system design","Code review habits","Logging and monitoring","Writing a strong README"]],
+["Job readiness","Turn skills into offers",["Resume and LinkedIn","GitHub profile cleanup","Behavioral answers (STAR)","System design interviews","Applying and networking"]]];
+const G=[["#7f1d1d","#111"],["#1e3a8a","#0b0b14"],["#14532d","#0b140e"],["#581c87","#12091a"],["#9a3412","#1a0d07"],["#134e4a","#07100f"]];
+const g=i=>`--g:linear-gradient(165deg,${G[i%6][0]},${G[i%6][1]})`;
+const PT=[["Hash map","Beginner"],["Two pointers","Beginner"],["Sliding window","Beginner"],["Stack","Beginner"],["Binary search","Builder"],["Linked list","Builder"],["Trees","Builder"],["Heap","Builder"],["Graphs","Pro"],["Backtracking","Pro"],["Dynamic programming","Pro"]];
+const PR=[["Task tracker app","Stage 3","Login, database, React front end"],["URL shortener API","Stage 4","REST service, cache, tests, Docker"],["Capstone","Stage 5","A real problem for real users"]];
+const $=id=>document.getElementById(id);
+let po=0;
+function next(){for(let i=0;i<S.length;i++)for(let j=0;j<5;j++)if(!Store.get(i+"-"+j))return[i,j];return null}
+function render(){
+const n=next(),done=Store.total(),r=Rewards.snap();
+if(!n)$("hero").innerHTML=`<p class="meta">ALL STAGES COMPLETE</p><h1>You finished the path</h1><p class="lead">Now apply for roles and keep building.</p>`;
+else{const[i,j]=n,s=S[i];$("hero").innerHTML=`<p class="meta">NEXT UP · STAGE ${i+1} · ABOUT 10 MINUTES</p><h1>${s[2][j]}</h1><p class="lead">${s[0]}: ${s[1]}.</p><div class="row">${s[3]?`<a class="btn play" href="${s[3]}#t${j}">▶ Start</a>`:`<button class="btn play" data-done="${i}-${j}">✓ Mark as done</button>`}<a class="ghost btn" href="#pathh">All steps</a></div><div class="bar"><i style="width:${done/30*100}%"></i></div><p class="note">${done} of 30 steps · Level ${r.lv} · ${r.xp} XP</p>`}
+$("stages").innerHTML=S.map((s,i)=>{const c=Store.stage(i);return`<a class="poster" href="${s[3]||"#pathh"}" style="${g(i)}"><span class="num">${i+1}</span>${s[3]?"":`<span class="tag">Lessons soon</span>`}<b>${s[0]}</b><small>${c===5?"Complete":c+" of 5 done"}</small><div class="pg"><i style="width:${c*20}%"></i></div></a>`}).join("");
+const ord=PT.map((_,i)=>i);if(po)ord.sort((a,b)=>IMPP[b][0]-IMPP[a][0]||a-b);
+$("patsub").textContent=po?"most asked first":"easiest first";$("patsort").textContent=po?"Sort by easiest first":"Sort by most asked";
+$("patfine").textContent="Bars show how often a pattern comes up in interviews (5 bars = almost everywhere). "+IMP_NOTE;
+$("pats").innerHTML=ord.map((i,r)=>{const p=PT[i];let c=0;for(let j=0;j<6;j++)if(Store.get("p"+i+"-"+j))c++;return`<a class="t10" href="stages/dsa.html#p${i}" title="${escH(IMPP[i][1])}"><span class="big">${r+1}</span><span class="poster sm" style="${g(i)}"><b>${p[0]}</b><small>${p[1]} · ${c}/6</small>${Imp.meter(IMPP[i][0],false)}<span class="pg"><i style="width:${c/6*100}%"></i></span></span></a>`}).join("");
+$("tools").innerHTML=[["Flashcards","Flip, recall, master 41 cards","stages/flashcards.html"],["Language revision","JS, Python, C, C++ side by side","stages/revision.html"],["Cheat sheets","Big-O, patterns, SQL, Git","stages/cheatsheets.html"],["Focus timer","10 to 25 minute sprints","#timerh"],["Study squad","Compete with friends on a weekly leaderboard","stages/squad.html"],["Lofi music","Study beats made live in your browser","","music"],["Your rewards","Level, XP and badges",""]].map((t,i)=>t[2]?`<a class="poster wc" href="${t[2]}" style="${g(i+1)}"><b>${t[0]}</b><small>${t[1]}</small></a>`:`<button class="poster wc" data-act="${t[3]||"rewards"}" style="${g(i+1)}"><b>${t[0]}</b><small>${t[1]}</small></button>`).join("");
+$("projs").innerHTML=PR.map((p,i)=>`<div class="poster" style="${g(i+3)}"><span class="tag">${p[1]}</span><b>${p[0]}</b><small>${p[2]}</small></div>`).join("");
+const cur=n?n[0]:-1;
+$("path").innerHTML=S.map((s,i)=>{const c=Store.stage(i),later=cur>=0&&i>cur;
+return`<details class="st ${i===cur?"cur":""} ${later?"later":""}" ${i===cur?"open":""}><summary><span>${s[0]}<br><small style="font-weight:400;color:var(--mute)">${s[1]}</small></span><span class="pill ${c===5?"ok":""}">${c===5?"Done":c+"/5"}</span></summary><ul>${s[2].map((t,j)=>`<li><label><input type="checkbox" data-k="${i}-${j}" ${Store.get(i+"-"+j)?"checked":""}><span style="flex:1 1 200px">${t}</span>${Imp.meter(IMPS[i][j])}</label></li>`).join("")}</ul></details>`}).join("");
+paintStreak()}
+document.addEventListener("change",e=>{const k=e.target.dataset.k;if(k){Store.set(k,e.target.checked);render()}});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-done],[data-act]");if(!b)return;if(b.dataset.done){Store.set(b.dataset.done,true);render()}else if(b.dataset.act==="music")Lofi.toggle();else Rewards.open()});
+document.addEventListener("click",e=>{if(e.target.closest("[data-psort]")){po=po?0:1;render()}});
+mountTimer($("timer"));render();
+</script>
+</body>
+</html>
