@@ -35,6 +35,22 @@ const T=[
 T[0][1].push(["Common algorithms",["Algorithm","Time","Space"],[["Binary search","O(log n)","O(1)"],["BFS or DFS on a graph","O(V + E)","O(V)"],["Merge sort","O(n log n)","O(n)"],["Building a heap","O(n)","O(1)"],["Memoized Fibonacci","O(n)","O(n)"],["Generating all subsets","O(2ⁿ)","O(n)"],["Generating all permutations","O(n!)","O(n)"]],"V is vertices (nodes), E is edges."]);
 T.push(["Git",[["Everyday commands",["Task","Command"],[["Start a repo","git init"],["Copy a repo","git clone URL"],["See changes","git status"],["Stage everything","git add ."],["Save a snapshot","git commit -m \"message\""],["View history","git log --oneline"],["New branch","git switch -c name"],["Switch branch","git switch name"],["Merge a branch","git merge name"],["Upload","git push"],["Download","git pull"],["Discard file changes","git restore file"],["Undo a commit safely","git revert hash"],["Set work aside","git stash"]]]]]);
 T.push(["Terminal",[["Core commands",["Task","Command"],[["Where am I","pwd"],["List files","ls -la"],["Change folder","cd folder"],["Make a folder","mkdir name"],["Make a file","touch file"],["Copy","cp a b"],["Move or rename","mv a b"],["Delete (no undo)","rm file"],["Print a file","cat file"],["Search text","grep -rn \"word\" ."],["Find files","find . -name \"*.py\""],["Make executable","chmod +x file"]]]]]);
+
+T.push(["Frontend",[
+["HTML semantics and accessibility",["Need","Prefer"],[["Navigation","<nav> with meaningful links"],["Action","<button>"],["Page content","<main>"],["Form field","<label for> + input id"],["Informative image","Useful alt text"],["Keyboard support","Native controls + visible focus"]]],
+["CSS layout quick guide",["Need","Use"],[["One-dimensional row/column","Flexbox"],["Rows and columns together","CSS Grid"],["Responsive cards","repeat(auto-fit, minmax(...))"],["Predictable sizing","box-sizing: border-box"],["Avoid overflow","min-width: 0; max-width: 100%"]]],
+["JavaScript async checklist",["Rule","Reason"],[["Check response.ok","HTTP errors do not automatically reject fetch"],["Catch rejected promises","Network and parsing errors need handling"],["Abort stale requests","Prevent outdated responses updating current UI"],["Avoid long sync work","It blocks input and rendering"],["Use const by default","Make reassignment explicit"]]]
+]]);
+T.push(["Backend and systems",[
+["API design",["Topic","Rule"],[["Resources","Use noun-based paths such as /api/tasks"],["Create","POST, usually return 201"],["Replace","PUT"],["Partial update","PATCH"],["Delete","DELETE, often 204"],["Validation","Validate all untrusted input on server"]]],
+["HTTP status quick reference",["Code","Meaning"],[["200","Successful request"],["201","Resource created"],["204","Success, no response body"],["400","Invalid request"],["401","Authentication required/invalid"],["403","Not permitted"],["404","Not found"],["409","Conflict"],["429","Rate limited"],["500","Unexpected server error"],["503","Temporarily unavailable"]]],
+["Database and operations",["Concept","Remember"],[["Foreign key","Protects referential integrity"],["B-tree index","Good for equality and range queries"],["Transaction","Group related writes atomically"],["Cache TTL","Bounds how long an entry can stay"],["Queue","Assume messages may be delivered more than once"],["Container","Runtime instance built from an image"],["CI","Automated lint, tests and build checks"]]]
+]]);
+T.push(["Portfolio and interviews",[
+["Project README checklist",["Section","Include"],[["Problem","Who has the problem and why"],["Demo","Working URL or screenshots"],["Architecture","Diagram and key decisions"],["Setup","Prerequisites and exact commands"],["Config","Environment variable names, never secrets"],["Quality","Tests, deployment and known limitations"]]],
+["Coding interview flow",["Step","Action"],[["Clarify","Inputs, outputs and constraints"],["Example","Walk through a small case"],["Baseline","Explain brute force and complexity"],["Optimize","Choose a pattern and invariant"],["Implement","Code in small steps"],["Verify","Empty, boundary, duplicate and large cases"],["Communicate","Correctness plus time/space complexity"]]]
+]]);
+
 const $=id=>document.getElementById(id),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 let k=0;
 function draw(){$("tabs").innerHTML=T.map((t,i)=>`<button class="chip" data-i="${i}" aria-pressed="${i===k}">${t[0]}</button>`).join("");

@@ -107,10 +107,10 @@
 const S=[
 ["Foundations","Programming, Git, and how the web works",["Variables, loops, functions","Data types and collections","Git and GitHub basics","Terminal and file system","How the web works"],"stages/foundations.html"],
 ["Data structures and algorithms","Solve problems the way interviewers expect",["Big-O and complexity","Arrays, strings, hash maps","Stacks, queues, linked lists","Trees and graphs","Recursion and dynamic programming"],"stages/dsa.html"],
-["Web and backend","Build apps people can use",["HTML, CSS, responsive layout","JavaScript in the browser","React fundamentals","REST APIs","Authentication and sessions"]],
-["Data and systems","Store data and ship reliably",["SQL and Postgres","Indexes and query design","Caching and queues","Docker and cloud basics","Testing and CI/CD"]],
-["Portfolio and capstone","Build one project end to end",["Pick and scope a project","Design docs and system design","Code review habits","Logging and monitoring","Writing a strong README"]],
-["Job readiness","Turn skills into offers",["Resume and LinkedIn","GitHub profile cleanup","Behavioral answers (STAR)","System design interviews","Applying and networking"]]];
+["Web and backend","Build apps people can use",["HTML, CSS, responsive layout","JavaScript in the browser","React fundamentals","REST APIs","Authentication and sessions"],"stages/web-backend.html"],
+["Data and systems","Store data and ship reliably",["SQL and Postgres","Indexes and query design","Caching and queues","Docker and cloud basics","Testing and CI/CD"],"stages/data-systems.html"],
+["Portfolio and capstone","Build one project end to end",["Pick and scope a project","Design docs and system design","Code review habits","Logging and monitoring","Writing a strong README"],"stages/capstone.html"],
+["Job readiness","Turn skills into offers",["Resume and LinkedIn","GitHub profile cleanup","Behavioral answers (STAR)","System design interviews","Applying and networking"],"stages/job-readiness.html"]];
 const G=[["#7f1d1d","#111"],["#1e3a8a","#0b0b14"],["#14532d","#0b140e"],["#581c87","#12091a"],["#9a3412","#1a0d07"],["#134e4a","#07100f"]];
 const g=i=>`--g:linear-gradient(165deg,${G[i%6][0]},${G[i%6][1]})`;
 const PT=[["Hash map","Beginner"],["Two pointers","Beginner"],["Sliding window","Beginner"],["Stack","Beginner"],["Binary search","Builder"],["Linked list","Builder"],["Trees","Builder"],["Heap","Builder"],["Graphs","Pro"],["Backtracking","Pro"],["Dynamic programming","Pro"]];
@@ -121,7 +121,7 @@ function next(){for(let i=0;i<S.length;i++)for(let j=0;j<5;j++)if(!Store.get(i+"
 function render(){
 const n=next(),done=Store.total(),r=Rewards.snap();
 if(!n)$("hero").innerHTML=`<p class="meta">ALL STAGES COMPLETE</p><h1>You finished the path</h1><p class="lead">Now apply for roles and keep building.</p>`;
-else{const[i,j]=n,s=S[i];$("hero").innerHTML=`<p class="meta">NEXT UP · STAGE ${i+1} · ABOUT 10 MINUTES</p><h1>${s[2][j]}</h1><p class="lead">${s[0]}: ${s[1]}.</p><div class="row">${s[3]?`<a class="btn play" href="${s[3]}#t${j}">▶ Start</a>`:`<button class="btn play" data-done="${i}-${j}">✓ Mark as done</button>`}<a class="ghost btn" href="#pathh">All steps</a></div><div class="bar"><i style="width:${done/30*100}%"></i></div><p class="note">${done} of 30 steps · Level ${r.lv} · ${r.xp} XP</p>`}
+else{const[i,j]=n,s=S[i];$("hero").innerHTML=`<p class="meta">NEXT UP · STAGE ${i+1} · ABOUT 10 MINUTES</p><h1>${s[2][j]}</h1><p class="lead">${s[0]}: ${s[1]}.</p><div class="row">${s[3]?`<a class="btn play" href="${s[3]}${i<2?"#t"+j:"#lesson-"+(j+1)}">▶ Start</a>`:`<button class="btn play" data-done="${i}-${j}">✓ Mark as done</button>`}<a class="ghost btn" href="#pathh">All steps</a></div><div class="bar"><i style="width:${done/30*100}%"></i></div><p class="note">${done} of 30 steps · Level ${r.lv} · ${r.xp} XP</p>`}
 $("stages").innerHTML=S.map((s,i)=>{const c=Store.stage(i);return`<a class="poster" href="${s[3]||"#pathh"}" style="${g(i)}"><span class="num">${i+1}</span>${s[3]?"":`<span class="tag">Lessons soon</span>`}<b>${s[0]}</b><small>${c===5?"Complete":c+" of 5 done"}</small><div class="pg"><i style="width:${c*20}%"></i></div></a>`}).join("");
 const ord=PT.map((_,i)=>i);if(po)ord.sort((a,b)=>IMPP[b][0]-IMPP[a][0]||a-b);
 $("patsub").textContent=po?"most asked first":"easiest first";$("patsort").textContent=po?"Sort by easiest first":"Sort by most asked";

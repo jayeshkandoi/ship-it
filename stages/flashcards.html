@@ -69,6 +69,44 @@ const DECKS=[
 ["C: what happens when you pass an array to a function?","It decays to a pointer, so the function does not know the length. Pass the size too."],
 ["C++: reference vs pointer?","A reference is an alias that cannot be null or reseated. A pointer can be null and can point elsewhere."],
 ["C++: what is RAII?","Resources are tied to object lifetime and released in the destructor. Prefer unique_ptr over raw new and delete."]]]];
+
+DECKS.push(
+["Frontend and JavaScript",[
+["What is the DOM?","A tree representation of the current HTML document that JavaScript can inspect and update."],
+["What is event delegation?","Attach a listener to a stable parent and use event bubbling to handle events from matching descendants."],
+["Why check response.ok after fetch?","fetch resolves for HTTP 4xx/5xx responses; response.ok tells you whether the status is in the successful range."],
+["What is a React key for?","It gives list items stable identity so React can match items between renders."],
+["When should useEffect be used?","To synchronize with an external system such as a subscription, browser API or network request—not to calculate derived render data."]
+]],
+["Backend and APIs",[
+["PUT vs PATCH?","PUT replaces a resource representation; PATCH applies a partial update."],
+["What does idempotent mean?","Repeating the same operation has the same intended effect as doing it once."],
+["401 vs 403?","401: authentication missing or invalid. 403: authenticated but not authorized."],
+["Why validate on the server?","Clients can be bypassed or modified; server-side validation protects the actual trust boundary."],
+["What is pagination for?","It bounds response size and work, making large collections practical to retrieve."]
+]],
+["SQL and systems",[
+["What is a foreign key?","A constraint that ensures a referenced row exists, preserving referential integrity."],
+["What is a composite index?","An index over multiple columns; its leftmost column order strongly affects which queries it supports."],
+["What does ACID stand for?","Atomicity, Consistency, Isolation and Durability."],
+["Why make queue consumers idempotent?","Messages may be delivered more than once; idempotency prevents duplicate side effects."],
+["What is cache-aside?","Check cache, load from database on miss, then populate cache with a TTL."],
+["Image vs container?","An image is an immutable template; a container is a running instance of that image."]
+]],
+["Testing and delivery",[
+["Unit vs integration test?","Unit tests isolate a small unit; integration tests verify interactions across boundaries such as API and database."],
+["What is CI?","Automated checks such as lint, tests and builds run when code changes."],
+["What is p95 latency?","95% of requests completed at or below that duration; the slowest 5% took longer."],
+["What belongs in a README?","Problem, features, setup, configuration, architecture, tests, deployment, demo and limitations."]
+]],
+["Interview preparation",[
+["What does STAR stand for?","Situation, Task, Action and Result."],
+["What should you say before coding?","Clarify constraints, restate inputs/outputs, work a small example and discuss a baseline solution."],
+["What is a system design trade-off?","A deliberate choice among qualities such as latency, consistency, cost, reliability and complexity."],
+["How do you diagnose a job-search bottleneck?","Track conversion between application stages and improve the stage with the largest drop-off."]
+]]
+);
+
 const $=id=>document.getElementById(id),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 let d=0,cur=-1,last=-1,busy=false,flipped=false;
 const CK=()=>Store.d.__cards=Store.d.__cards||{};

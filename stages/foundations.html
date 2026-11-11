@@ -60,6 +60,21 @@ L[4].blocks.push(
 ["Cookies and sessions","HTTP forgets you between requests. A cookie holds a small ID that the server uses to remember who you are."],
 ["HTTPS","The S means traffic is encrypted. Never send passwords over plain HTTP."],
 ["Frontend, backend, database","The frontend runs in the browser. The backend runs on a server and enforces the rules. The database stores data permanently."]);
+
+L[0].blocks.push(
+["Why types matter","A type defines which values are valid and which operations make sense. Static type systems catch many mistakes before a program runs; dynamic type systems check values at runtime. Neither removes the need to validate external input."],
+["Functions, parameters and return values","A function is a named unit of behavior. Keep one responsibility per function, choose descriptive names, and make inputs and outputs clear. Pure functions are easier to test because the same input produces the same output without changing outside state.", "function total(items) {\n  return items.reduce((sum, item) => sum + item.price, 0);\n}"],
+["Collections and choosing the right structure","Use an array when order and indexed access matter, a set when uniqueness or membership matters, and a map when values are associated with keys. Choosing a collection changes both clarity and performance."],
+["Debugging with a hypothesis","Reproduce the bug, reduce it to the smallest failing case, inspect the inputs and state, form one hypothesis, test it, then add a regression test. Avoid changing several things at once because it hides which change fixed the issue."]
+);
+L[1].blocks.push(
+["Time and space complexity","Time complexity describes how work grows with input size; space complexity describes extra memory. Analyze loops, nested loops, recursion depth and auxiliary collections. State average and worst case when they differ."],
+["Binary search, step by step","Keep a search interval with a clear invariant. Choose the midpoint, compare it with the target, and discard the half that cannot contain the answer. Use a loop condition and midpoint formula that avoid off-by-one errors.", "lo, hi = 0, len(nums) - 1\nwhile lo <= hi:\n    mid = lo + (hi - lo) // 2\n    if nums[mid] == target:\n        return mid\n    if nums[mid] < target:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nreturn -1"],
+["Sorting and when to use it","Comparison sorting has an O(n log n) lower bound in the general case. Merge sort is stable and predictable but uses extra memory; quicksort is often fast in practice but has O(n²) worst case; heapsort guarantees O(n log n) with low extra space."],
+["Greedy algorithms","A greedy algorithm makes the best-looking local choice at each step. It is correct only when the problem has a property proving local choices lead to a global optimum. Explain the proof, not just the intuition."],
+["Interview explanation framework","Clarify constraints, demonstrate a small example, state a baseline, choose a pattern, explain the invariant, code, test edge cases, and finish with time and space complexity."]
+);
+
 const $=id=>document.getElementById(id),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const h=+(location.hash.match(/t(\d)/)||[])[1];
 let ti=!isNaN(h)&&h<5?h:(()=>{for(let j=0;j<5;j++)if(!Store.get("0-"+j))return j;return 0})();

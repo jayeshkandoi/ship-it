@@ -82,6 +82,13 @@ const QS=[
 ["Dynamic programming applies when a problem has…",["No base case","Sorted input","Overlapping subproblems","Only one valid answer"],2,"Repeated subproblems let you store results instead of recomputing them."]];
 const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 function more(i){const m=MORE[i];return`<div class="blk"><h3>Key points</h3><ul>${m.p.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class="blk"><h3>Example (Python)</h3><pre class="code">${esc(m.c)}</pre></div><div class="try"><b>Common mistake:</b> ${m.m}</div>`}
+
+
+MORE[0].p.push("Best, average and worst case can differ; state which one you mean.","Amortized analysis averages occasional expensive operations across a sequence of operations.");
+MORE[1].p.push("A two-pointer scan often reduces O(n²) pair checks to O(n) after sorting or when order is already useful.","A sliding window maintains a valid contiguous range and updates it as the endpoints move.");
+MORE[2].p.push("A monotonic stack keeps values in increasing or decreasing order to answer next-greater or next-smaller questions.","Use a deque for a queue with efficient insertion and removal at both ends.");
+MORE[3].p.push("For an adjacency list, BFS and DFS take O(V + E) time because each vertex and edge is visited a bounded number of times.","Topological sorting applies to directed acyclic graphs and produces an order that respects dependencies.");
+MORE[4].p.push("A DP state must contain enough information to make the remaining problem independent of earlier decisions.","Space can sometimes be reduced when each state depends only on a fixed number of previous rows or values.");
 const FULL={E:"Easy",M:"Medium",H:"Hard"},$=id=>document.getElementById(id);
 const hashT=+(location.hash.match(/t(\d)/)||[])[1];
 let tab=0,ti=isNaN(hashT)?(()=>{for(let j=0;j<5;j++)if(!Store.get("1-"+j))return j;return 0})():hashT,
