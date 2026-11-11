@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stage 3: Web and backend | Ship It</title>
+<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.lesson{margin:18px 0}.lesson h2{margin:0 0 8px}.lesson h3{margin:20px 0 7px}.lesson p,.lesson li{line-height:1.7}.lesson .diagram{padding:14px;border:1px dashed var(--line,rgba(255,255,255,.25));border-radius:12px;white-space:pre-wrap;font: .9rem/1.65 ui-monospace,monospace;overflow:auto}.lesson details{margin:12px 0}.lesson summary{cursor:pointer;font-weight:700;padding:8px 0}.lesson .blk{margin:16px 0}.lesson .try{margin-top:16px}.lesson .code{overflow:auto}.lesson .meta{margin-bottom:8px}
+</style>
+</head>
+<body>
+<header class="top"><a href="../index.html">← Roadmap</a><span class="streak" id="streak"></span></header>
+<main class="wrap">
+<p class="meta">STAGE 3 · DEEP LEARNING</p><h1>Web and backend</h1><p class="sub">Learn how browser interfaces, APIs and servers fit together. These lessons move from semantic HTML to a tested backend service.</p>
+<p class="note">How to use this stage: read one lesson, reproduce the example without copying, explain the diagram aloud, then complete the exercise. Open the answer only after making an attempt.</p>
+<section class="card lesson" id="lesson-1">
+<p class="meta">LESSON 1 · 30–45 min</p><h2>HTML: semantic structure and accessibility</h2><p>HTML describes meaning and structure. Browsers build a document tree from elements; CSS controls presentation and JavaScript adds behavior. Good markup makes pages understandable to assistive technology, search engines and future developers.</p>
+<div class="blk"><h3>Elements, attributes and the DOM</h3><p>An element usually has an opening tag, content and a closing tag. Attributes add configuration such as href, src, alt, type and aria-label. The browser parses markup into a Document Object Model (DOM), a tree that scripts can inspect and update. Use headings in a meaningful hierarchy rather than choosing a heading because of its default size.</p></div><div class="blk"><h3>Semantic landmarks</h3><p>Use header, nav, main, section, article, aside and footer according to their meaning. A button performs an action; an anchor navigates. A clickable div does neither accessibly by default. Inputs need associated labels. Images that convey information need useful alt text; decorative images should use an empty alt attribute.</p><ul><li>One main landmark per page is a useful default.</li><li>Use a real button for actions and an anchor for navigation.</li><li>Keep visible keyboard focus; do not remove outlines without a replacement.</li><li>Use table headers for tabular data, not for page layout.</li></ul></div><div class="blk"><h3>A small accessible form</h3><p>undefined</p><pre class="code">&lt;form&gt;
+  &lt;label for="email"&gt;Email address&lt;/label&gt;
+  &lt;input id="email" name="email" type="email" required&gt;
+  &lt;button type="submit"&gt;Join&lt;/button&gt;
+&lt;/form&gt;</pre></div><div class="blk"><h3>DOM mental model</h3><p>undefined</p><pre class="diagram">Document
+└── html
+    ├── head  → title, metadata, styles
+    └── body
+        ├── header → site navigation
+        ├── main
+        │   ├── h1
+        │   └── form → label + input + button
+        └── footer</pre></div>
+<div class="try"><b>Practice task:</b> Create a profile page with a header, navigation, main biography, project list and contact form. Navigate it using only Tab, Shift+Tab and Enter; fix any inaccessible control.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> Why is a button preferable to a clickable div for submitting a form?</p><p><b>Answer:</b> A button has built-in keyboard behavior, focusability and semantics, and works naturally with forms.</p><p><b>Why:</b> Native HTML controls provide behavior that otherwise must be recreated and tested.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> How would you make a form accessible?</p><p><b>Strong answer should mention:</b> Semantic form elements, explicit labels, correct input types, required/error messaging, keyboard access, focus management and useful status announcements.</p></details>
+</section><section class="card lesson" id="lesson-2">
+<p class="meta">LESSON 2 · 30–45 min</p><h2>CSS: layout, responsive design and maintainability</h2><p>CSS maps a set of selectors and declarations onto the DOM. The cascade resolves competing declarations using origin, importance, specificity and source order. Layout is easier when you understand the box model and choose a layout system deliberately.</p>
+<div class="blk"><h3>The box model</h3><p>Every element has content, padding, border and margin. With content-box, declared width applies to content only. With border-box, width includes padding and border. A common project-wide rule is box-sizing: border-box so sizing is predictable.</p><pre class="code">*, *::before, *::after {
+  box-sizing: border-box;
+}
+.card {
+  width: min(100%, 42rem);
+  padding: 1.25rem;
+  border: 1px solid #888;
+}</pre></div><div class="blk"><h3>Flexbox vs Grid</h3><p>Flexbox is ideal for arranging items along one axis, such as a toolbar or navigation row. Grid is ideal for two-dimensional layouts, such as a card gallery with rows and columns. Neither is a replacement for the other.</p><pre class="diagram">Flexbox:  [logo] [nav] [button]  → one axis
+Grid:      [card] [card] [card]
+           [card] [card] [card]  → rows + columns</pre></div><div class="blk"><h3>Responsive thinking</h3><p>Start with content constraints, not device names. Use flexible widths, minmax(), wrapping and media queries only when the layout needs a change. Test long text, zoom, touch targets and narrow screens.</p><pre class="code">.cards {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit, minmax(min(100%, 16rem), 1fr)
+  );
+  gap: 1rem;
+}
+img { max-width: 100%; height: auto; }</pre></div><div class="blk"><h3>Debug the cascade</h3><p>When a style does not apply, inspect the element in DevTools. Check whether the selector matches, whether a later or more specific declaration wins, whether the property is inherited, and whether a parent layout constrains the element. Avoid solving every conflict with !important.</p></div>
+<div class="try"><b>Practice task:</b> Build a responsive three-card project gallery. At 320px wide it should have no horizontal overflow; at desktop it should use multiple columns. Add visible focus states.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> When would you choose Grid over Flexbox?</p><p><b>Answer:</b> Choose Grid when you need to control rows and columns together; choose Flexbox for a primarily one-dimensional arrangement.</p><p><b>Why:</b> Picking the layout model that matches the problem reduces unnecessary CSS and fragile spacing hacks.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> How do you debug a layout that overflows on mobile?</p><p><b>Strong answer should mention:</b> Inspect the overflowing element, check fixed widths and min-width, long unbreakable content, images, grid tracks and viewport assumptions; reproduce at narrow widths and fix the source.</p></details>
+</section><section class="card lesson" id="lesson-3">
+<p class="meta">LESSON 3 · 30–45 min</p><h2>JavaScript in the browser: events, async and state</h2><p>Browser JavaScript responds to events, changes the DOM and communicates with servers. The event loop lets JavaScript coordinate asynchronous work without blocking the page while network or timer operations are pending.</p>
+<div class="blk"><h3>Scope and data</h3><p>Use const by default and let when reassignment is required. Prefer strict equality (===). Objects and arrays are reference values: assigning one variable to another does not clone the object. Keep state changes explicit and avoid mutating shared objects unexpectedly.</p><pre class="code">const user = { name: "Asha", active: true };
+const copy = { ...user }; // shallow copy
+copy.active = false;
+console.log(user.active); // true</pre></div><div class="blk"><h3>Events and event delegation</h3><p>An event travels through capture, target and bubble phases. Delegation attaches one listener to a stable parent and checks which child initiated the event. It is useful for lists whose items are created dynamically.</p><pre class="code">document.querySelector("#list").addEventListener("click", event =&gt; {
+  const button = event.target.closest("button[data-id]");
+  if (!button) return;
+  removeItem(button.dataset.id);
+});</pre></div><div class="blk"><h3>Promises and async/await</h3><p>A Promise represents a value that may arrive later. await pauses the current async function until the promise settles; it does not freeze the browser. Always handle failures and check HTTP response status because fetch resolves even for many 4xx and 5xx responses.</p><pre class="code">async function loadProfile(id) {
+  const response = await fetch(`/api/users/${id}`);
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+  return response.json();
+}
+
+loadProfile(42)
+  .then(showProfile)
+  .catch(showError);</pre></div><div class="blk"><h3>The event loop</h3><p>Promise callbacks run as microtasks. Timers and many event callbacks are tasks. Long synchronous loops block rendering and input; split expensive work or move suitable computation to a Web Worker.</p><pre class="diagram">Call stack: run current synchronous code
+      ↓
+Browser APIs: network, timers, events
+      ↓ when ready
+Task / microtask queues
+      ↓
+Event loop schedules the next callback
+      ↓
+Browser can render between tasks</pre></div>
+<div class="try"><b>Practice task:</b> Build a searchable list with add, complete and delete actions. Persist it in localStorage, show an empty state, and handle malformed stored JSON safely.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> Why should fetch code check response.ok?</p><p><b>Answer:</b> Because fetch normally resolves for HTTP errors such as 404 and 500; response.ok is false for non-success status codes.</p><p><b>Why:</b> Network failure and an HTTP error are different failure modes and both need deliberate handling.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> Explain the event loop to a teammate.</p><p><b>Strong answer should mention:</b> Synchronous code runs on the call stack; browser APIs complete asynchronous work; callbacks are queued and scheduled when the stack is clear, with microtasks drained before the next task.</p></details>
+</section><section class="card lesson" id="lesson-4">
+<p class="meta">LESSON 4 · 30–45 min</p><h2>React: components, state and effects</h2><p>React builds user interfaces from components. A component receives props and returns a description of UI. State represents data that changes over time; when state changes, React renders the component again.</p>
+<div class="blk"><h3>Components and props</h3><p>Keep components focused and compose them. Props flow from parent to child and should be treated as read-only. Give list items stable keys so React can match items between renders.</p><pre class="code">function TaskRow({ task, onToggle }) {
+  return (
+    &lt;li&gt;
+      &lt;button onClick={() =&gt; onToggle(task.id)}&gt;
+        {task.done ? "Undo" : "Complete"}
+      &lt;/button&gt;
+      {task.title}
+    &lt;/li&gt;
+  );
+}</pre></div><div class="blk"><h3>State is a snapshot</h3><p>Use useState for local state. State updates schedule a render; they do not mutate the value in the current render. When the next value depends on the previous value, use the updater form. Avoid storing values that can be calculated from existing state.</p><pre class="code">const [count, setCount] = useState(0);
+function addTwo() {
+  setCount(current =&gt; current + 2);
+}</pre></div><div class="blk"><h3>Effects and data fetching</h3><p>useEffect synchronizes a component with an external system. It is not a general place to calculate derived values. Include every reactive value used by the effect in its dependency list, clean up subscriptions, and guard against stale requests when appropriate.</p><pre class="code">useEffect(() =&gt; {
+  const controller = new AbortController();
+  fetch("/api/tasks", { signal: controller.signal })
+    .then(r =&gt; {
+      if (!r.ok) throw new Error("Could not load tasks");
+      return r.json();
+    })
+    .then(setTasks)
+    .catch(error =&gt; {
+      if (error.name !== "AbortError") setError(error.message);
+    });
+  return () =&gt; controller.abort();
+}, []);</pre></div><div class="blk"><h3>Data flow</h3><p>undefined</p><pre class="diagram">Parent owns tasks state
+       │ props
+       ▼
+TaskList ── maps tasks with stable keys
+       │
+       ▼
+TaskRow ── user clicks
+       │ callback(id)
+       ▼
+Parent updates state → React renders again</pre></div>
+<div class="try"><b>Practice task:</b> Create a React task manager with add, toggle, filter and delete. Separate TaskForm, TaskList and TaskRow components. Explain which component owns each piece of state.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> Why should a list use stable keys instead of array indexes?</p><p><b>Answer:</b> Stable keys let React identify the same logical item after insertions, deletions or reordering.</p><p><b>Why:</b> Index keys can associate component state with the wrong item when list order changes.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> When should you use useEffect?</p><p><b>Strong answer should mention:</b> For synchronization with external systems such as subscriptions, browser APIs or network requests—not for values that can be derived during render.</p></details>
+</section><section class="card lesson" id="lesson-5">
+<p class="meta">LESSON 5 · 30–45 min</p><h2>HTTP APIs, Node.js and backend foundations</h2><p>A backend receives requests, validates them, enforces business rules, reads or writes data, and returns a response. An API is a contract: clients depend on its routes, methods, status codes and data shapes.</p>
+<div class="blk"><h3>REST resource design</h3><p>Model endpoints around resources. GET reads, POST creates or triggers a non-idempotent operation, PUT replaces, PATCH partially updates and DELETE removes. Use plural nouns and predictable response shapes. Validate input on the server even if the browser already validates it.</p><pre class="code">GET    /api/tasks
+GET    /api/tasks/42
+POST   /api/tasks
+PATCH  /api/tasks/42
+DELETE /api/tasks/42
+
+// POST body
+{ "title": "Write tests" }</pre></div><div class="blk"><h3>A minimal Express route</h3><p>Routes should parse input, validate it, call a service or data layer, and return an intentional status. In larger applications keep routing, business logic and persistence separate.</p><pre class="code">app.post("/api/tasks", async (req, res, next) =&gt; {
+  try {
+    const title = String(req.body.title || "").trim();
+    if (!title) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+    const task = await taskService.create({ title });
+    return res.status(201).json(task);
+  } catch (error) {
+    next(error);
+  }
+});</pre></div><div class="blk"><h3>Status codes and errors</h3><p>Use 200 for a successful read/update, 201 for creation, 204 for success with no body, 400 for invalid input, 401 for missing/invalid authentication, 403 for insufficient permission, 404 for missing resources, 409 for conflicts and 500 for unexpected server failures. Do not leak stack traces or secrets to clients.</p></div><div class="blk"><h3>Request pipeline</h3><p>undefined</p><pre class="diagram">Browser / mobile client
+        │ HTTP request
+        ▼
+Router → authentication → validation
+        ▼
+Service / business rules
+        ▼
+Repository / database
+        ▼
+Response serializer → status + JSON
+        ▼
+Client updates the UI</pre></div><div class="blk"><h3>Node.js execution model</h3><p>Node.js runs JavaScript outside the browser and uses an event-driven, non-blocking I/O model. It is effective for many concurrent network operations, but CPU-heavy synchronous work can block the event loop. Use streams for large data and background workers or queues for long-running jobs.</p></div>
+<div class="try"><b>Practice task:</b> Build a CRUD API for tasks. Include validation, consistent error responses, pagination, and tests for success, invalid input, missing records and server errors.</div>
+<details><summary>Check your understanding</summary><p><b>Question:</b> What is the difference between 401 and 403?</p><p><b>Answer:</b> 401 means authentication is missing or invalid; 403 means the identity is known but does not have permission.</p><p><b>Why:</b> Authentication answers who you are; authorization answers what you may do.</p></details>
+<details><summary>Interview practice</summary><p><b>Question:</b> How would you structure a small Node API?</p><p><b>Strong answer should mention:</b> Separate route/controller, validation, service/business logic and data access; centralize error handling; configure environment variables; test behavior and secure inputs.</p></details>
+</section>
+<section class="card"><h2>Stage project</h2><p>Learn how browser interfaces, APIs and servers fit together. These lessons move from semantic HTML to a tested backend service.</p><ol><li>Write a one-page scope and define the user problem.</li><li>Build the smallest working version before adding extras.</li><li>Test the happy path, invalid input, empty state and failure path.</li><li>Write a README with setup steps, screenshots and trade-offs.</li><li>Ask someone to use it and record what confused them.</li></ol><p class="try"><b>Definition of done:</b> a stranger can run it, understand its purpose, and verify its main behavior.</p></section>
+<div class="nav"><a class="ghost btn" href="../index.html">Roadmap</a><a class="btn" href="flashcards.html">Review flashcards</a></div>
+</main><script src="../js/app.js"></script><script>paintStreak();</script>
+</body></html>
