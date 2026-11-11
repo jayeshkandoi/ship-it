@@ -8,6 +8,67 @@
 <script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<style>
+/* Practice tracker. Scoped to .tk so it cannot affect the rest of the site.
+   Uses translucent surfaces and inherited text colour so it follows both the cinema and midnight themes. */
+.tk{--tk-line:rgba(255,255,255,.14);--tk-surface:rgba(255,255,255,.05);--tk-surface2:rgba(0,0,0,.28);--tk-mute:var(--mute,#9aa3b2);--tk-none:#59627a;--tk-weak:#ff7a7a;--tk-mid:#ffc857;--tk-strong:#4fd18b;--tk-accent:#8fb0ff;color:inherit;font-family:inherit;line-height:1.45;margin:0 0 28px}
+.tk,.tk *,.tk *::before,.tk *::after{box-sizing:border-box}
+.tk-panel{background:var(--tk-surface);border:1px solid var(--tk-line);border-radius:14px;padding:16px;margin-bottom:14px}
+.tk-intro{margin:0 0 14px;color:var(--tk-mute);font-size:.92rem;max-width:62ch}
+.tk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.tk-stat{background:var(--tk-surface2);border:1px solid var(--tk-line);border-radius:12px;padding:10px 12px}
+.tk-stat b{display:block;font-size:1.5rem;line-height:1.1}
+.tk-stat span{font-size:.78rem;color:var(--tk-mute);display:flex;align-items:center;gap:6px}
+.tk-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.tk .l0{--c:var(--tk-none)}.tk .l1{--c:var(--tk-weak)}.tk .l2{--c:var(--tk-mid)}.tk .l3{--c:var(--tk-strong)}
+.tk-dot{background:var(--c)}
+.tk-bar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--tk-surface2);border:1px solid var(--tk-line)}
+.tk-bar i{display:block;height:100%;background:var(--c);transition:width .35s ease}
+.tk-note{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:.82rem;color:var(--tk-mute)}
+.tk-focus{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tk-tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tk-accent);font-weight:700}
+.tk-focus strong{font-size:1.05rem}
+.tk-why{color:var(--tk-mute);font-size:.88rem}
+.tk-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.tk-chip,.tk-btn,.tk-ib,.tk-seg button{appearance:none;font:inherit;cursor:pointer;color:inherit}
+.tk-chip{border:1px solid var(--tk-line);background:var(--tk-surface);color:var(--tk-mute);border-radius:99px;padding:6px 12px;font-size:.85rem;display:inline-flex;gap:6px;align-items:center}
+.tk-chip[aria-pressed="true"]{color:inherit;border-color:var(--tk-accent);background:rgba(143,176,255,.14)}
+.tk button:focus-visible,.tk input:focus-visible,.tk a:focus-visible{outline:2px solid var(--tk-accent);outline-offset:2px}
+.tk-group{margin:16px 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--tk-mute);font-weight:700}
+.tk-list{display:grid;gap:8px}
+.tk-row{display:grid;grid-template-columns:minmax(0,1.2fr) auto auto auto;gap:12px;align-items:center;background:var(--tk-surface);border:1px solid var(--tk-line);border-left:4px solid var(--c);border-radius:12px;padding:10px 12px}
+.tk-name{min-width:0}
+.tk-name b{display:block;overflow-wrap:anywhere}
+.tk-name small{color:var(--tk-mute);font-size:.78rem}
+.tk-name a{color:var(--tk-accent);text-decoration:none;margin-left:8px;font-size:.78rem;white-space:nowrap}
+.tk-name a:hover{text-decoration:underline}
+.tk-seg{display:inline-flex;border:1px solid var(--tk-line);border-radius:10px;overflow:hidden;background:var(--tk-surface2)}
+.tk-seg button{border:0;background:transparent;color:var(--tk-mute);font-size:.8rem;padding:7px 10px;border-right:1px solid var(--tk-line);white-space:nowrap}
+.tk-seg button:last-child{border-right:0}
+.tk-seg button[aria-pressed="true"]{background:var(--c);color:#10121a;font-weight:700}
+.tk-seg button.l0[aria-pressed="true"]{color:#fff}
+.tk-count{display:inline-flex;align-items:center;gap:4px;font-size:.85rem;color:var(--tk-mute)}
+.tk-count output{min-width:2ch;text-align:center;color:inherit;font-weight:700}
+.tk-ib{width:28px;height:28px;border-radius:8px;border:1px solid var(--tk-line);background:var(--tk-surface2);line-height:1;padding:0}
+.tk-ib:hover,.tk-btn:hover{border-color:var(--tk-accent)}
+.tk-acts{display:flex;gap:6px;align-items:center}
+.tk-btn{border:1px solid var(--tk-line);background:var(--tk-surface2);border-radius:10px;padding:7px 12px;font-size:.85rem}
+.tk-btn.primary{background:var(--tk-accent);color:#0a1130;border-color:var(--tk-accent);font-weight:700}
+.tk-btn.danger:hover{border-color:var(--tk-weak);color:var(--tk-weak)}
+.tk-add{display:flex;gap:8px;flex-wrap:wrap}
+.tk-input{flex:1 1 180px;min-width:0;background:var(--tk-surface2);color:inherit;border:1px solid var(--tk-line);border-radius:10px;padding:8px 12px;font:inherit}
+.tk-foot{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tk-empty{color:var(--tk-mute);text-align:center;padding:22px;border:1px dashed var(--tk-line);border-radius:12px}
+.tk-toast{color:var(--tk-mute);font-size:.85rem;min-height:1.2em;margin-top:8px}
+@media(max-width:720px){
+.tk-stats{grid-template-columns:repeat(2,1fr)}
+.tk-row{grid-template-columns:1fr;gap:10px}
+.tk-seg{display:grid;grid-template-columns:repeat(4,1fr)}
+.tk-seg button{padding:9px 4px}
+.tk-acts{justify-content:space-between}
+}
+@media(prefers-reduced-motion:reduce){.tk-bar i{transition:none}}
+</style>
 </head>
 <body>
 <header class="top"><b>Ship It</b><span class="streak" id="streak"></span></header>
@@ -23,6 +84,8 @@
 <h2 class="rowh">Patterns to master <small id="patsub">easiest first</small><button class="chip" id="patsort" data-psort="1">Sort by most asked</button></h2>
 <div class="scroller" id="pats"></div>
 <p class="fine" id="patfine"></p>
+<h2 class="rowh" id="trackerh">Practice tracker <small>mark each topic Weak, Intermediate or Strong</small></h2>
+<div class="tk" id="tracker"></div>
 <h2 class="rowh">Tools <small>when you need a quick boost</small></h2>
 <div class="scroller" id="tools"></div>
 <h2 class="rowh">Projects you will build <small>each one goes on your resume</small></h2>
@@ -72,6 +135,197 @@ document.addEventListener("change",e=>{const k=e.target.dataset.k;if(k){Store.se
 document.addEventListener("click",e=>{const b=e.target.closest("[data-done],[data-act]");if(!b)return;if(b.dataset.done){Store.set(b.dataset.done,true);render()}else if(b.dataset.act==="music")Lofi.toggle();else Rewards.open()});
 document.addEventListener("click",e=>{if(e.target.closest("[data-psort]")){po=po?0:1;render()}});
 mountTimer($("timer"));render();
+</script>
+<script>
+/* Practice tracker: rate each pattern Weak / Intermediate / Strong.
+   Reads the pattern list from PT above, stores its own data under "shipit-practice-v1". */
+(function(){
+"use strict";
+var host=document.getElementById("tracker");if(!host)return;
+var KEY="shipit-practice-v1";
+var LEVELS=["Not started","Weak","Intermediate","Strong"];
+var state={topics:[],filter:"all"};
+var base=(typeof PT!=="undefined"&&Array.isArray(PT))?PT:[];
+
+host.innerHTML=
+'<p class="tk-intro">Be honest: a Weak topic is one you would struggle to solve in an interview. Weak topics come first in your next-up list. Progress is saved on this device.</p>'+
+'<div class="tk-panel"><div class="tk-stats" id="tk-stats"></div><div class="tk-bar" id="tk-bar" role="img"></div>'+
+'<div class="tk-note"><span id="tk-left"></span><span id="tk-right"></span></div></div>'+
+'<div class="tk-panel tk-focus" id="tk-focus" aria-live="polite"></div>'+
+'<div class="tk-filters" id="tk-filters" role="group" aria-label="Filter topics by level"></div>'+
+'<div id="tk-list"></div>'+
+'<div class="tk-panel" style="margin-top:16px"><form class="tk-add" id="tk-add" autocomplete="off">'+
+'<input class="tk-input" id="tk-name" type="text" placeholder="Add your own topic (e.g. Tries)" aria-label="New topic name" maxlength="60" required>'+
+'<button class="tk-btn primary" type="submit">Add topic</button></form>'+
+'<div class="tk-foot"><button class="tk-btn" type="button" id="tk-export">Export backup</button>'+
+'<button class="tk-btn" type="button" id="tk-import">Import backup</button>'+
+'<button class="tk-btn danger" type="button" id="tk-reset">Reset levels</button>'+
+'<input type="file" id="tk-file" accept="application/json" hidden></div>'+
+'<div class="tk-toast" id="tk-toast" role="status"></div></div>';
+
+function q(id){return document.getElementById(id)}
+function el(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+function uid(){return "t"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function todayISO(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function daysSince(iso){if(!iso)return null;var p=iso.split("-").map(Number);var a=new Date(p[0],p[1]-1,p[2]);var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());return Math.round((n-a)/864e5)}
+function ago(iso){var n=daysSince(iso);if(n===null)return "never practiced";if(n<=0)return "practiced today";if(n===1)return "practiced yesterday";return "practiced "+n+" days ago"}
+function toast(m){q("tk-toast").textContent=m}
+
+function clean(arr){
+  return arr.filter(function(t){return t&&typeof t.name==="string"&&t.name.trim()}).map(function(t){
+    return{
+      id:typeof t.id==="string"?t.id:uid(),
+      name:t.name.trim().slice(0,60),
+      group:(typeof t.group==="string"&&t.group.trim()?t.group.trim():"My topics").slice(0,30),
+      level:[0,1,2,3].indexOf(t.level)>-1?t.level:0,
+      solved:Math.max(0,Math.min(9999,parseInt(t.solved,10)||0)),
+      last:/^\d{4}-\d{2}-\d{2}$/.test(t.last||"")?t.last:"",
+      link:typeof t.link==="string"&&/^stages\/[\w.#-]+$/.test(t.link)?t.link:"",
+      custom:!!t.custom
+    };
+  });
+}
+function fromSite(){
+  return base.map(function(p,i){return{id:"p"+i,name:p[0],group:p[1],level:0,solved:0,last:"",link:"stages/dsa.html#p"+i,custom:false}});
+}
+function load(){
+  var saved=[];
+  try{var raw=localStorage.getItem(KEY);if(raw){var d=JSON.parse(raw);if(d&&Array.isArray(d.topics))saved=clean(d.topics)}}catch(e){}
+  var byName={};saved.forEach(function(t){byName[t.name.toLowerCase()]=t});
+  var merged=fromSite().map(function(t){var s=byName[t.name.toLowerCase()];if(s){t.level=s.level;t.solved=s.solved;t.last=s.last}return t});
+  saved.filter(function(t){return t.custom}).forEach(function(t){merged.push(t)});
+  state.topics=merged;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({topics:state.topics}))}catch(e){toast("Could not save in this browser. Use Export backup.")}}
+function counts(){var c=[0,0,0,0];state.topics.forEach(function(t){c[t.level]++});return c}
+
+function renderSummary(){
+  var c=counts(),total=state.topics.length||1;
+  var st=q("tk-stats");st.textContent="";
+  [3,2,1,0].forEach(function(l){
+    var s=el("div","tk-stat l"+l);s.appendChild(el("b",null,String(c[l])));
+    var lab=el("span");lab.appendChild(el("i","tk-dot"));lab.appendChild(document.createTextNode(LEVELS[l]));
+    s.appendChild(lab);st.appendChild(s);
+  });
+  var bar=q("tk-bar");bar.textContent="";
+  [3,2,1,0].forEach(function(l){var i=el("i","l"+l);i.style.width=(c[l]/total*100)+"%";bar.appendChild(i)});
+  bar.setAttribute("aria-label",c[3]+" strong, "+c[2]+" intermediate, "+c[1]+" weak, "+c[0]+" not started");
+  var score=(c[3]+c[2]*0.6+c[1]*0.25)/total;
+  q("tk-left").textContent="Overall readiness "+Math.round(score*100)+"%";
+  q("tk-right").textContent=(total-c[0])+" of "+state.topics.length+" topics rated";
+}
+function nextUp(){
+  var order=[1,0,2];
+  for(var i=0;i<order.length;i++){
+    var pool=state.topics.filter(function(t){return t.level===order[i]});
+    if(pool.length){
+      pool.sort(function(a,b){var da=daysSince(a.last),db=daysSince(b.last);return (db===null?1e6:db)-(da===null?1e6:da)});
+      return pool[0];
+    }
+  }
+  return null;
+}
+function renderFocus(){
+  var b=q("tk-focus");b.textContent="";
+  var t=nextUp();
+  b.appendChild(el("span","tk-tag","Next up"));
+  if(!t){b.appendChild(el("strong",null,state.topics.length?"Everything is Strong. Time to build a project.":"Add a topic to get started."));return}
+  b.appendChild(el("strong",null,t.name));
+  b.appendChild(el("span","tk-why",t.level===1?"Marked weak, "+ago(t.last):t.level===0?"Not started yet":"Intermediate, push it to Strong"));
+}
+function renderFilters(){
+  var c=counts(),b=q("tk-filters");b.textContent="";
+  [["all","All",state.topics.length],["1","Weak",c[1]],["2","Intermediate",c[2]],["3","Strong",c[3]],["0","Not started",c[0]]].forEach(function(it){
+    var x=el("button","tk-chip"+(it[0]==="all"?"":" l"+it[0]));x.type="button";x.dataset.filter=it[0];
+    x.setAttribute("aria-pressed",String(state.filter===it[0]));
+    if(it[0]!=="all")x.appendChild(el("i","tk-dot"));
+    x.appendChild(document.createTextNode(it[1]+" ("+it[2]+")"));b.appendChild(x);
+  });
+}
+function row(t){
+  var r=el("div","tk-row l"+t.level);r.dataset.id=t.id;
+  var nm=el("div","tk-name");nm.appendChild(el("b",null,t.name));
+  var sm=el("small",null,ago(t.last));
+  if(t.link){var a=el("a",null,"Open lessons ›");a.href=t.link;sm.appendChild(a)}
+  nm.appendChild(sm);r.appendChild(nm);
+  var seg=el("div","tk-seg");seg.setAttribute("role","group");seg.setAttribute("aria-label","Level for "+t.name);
+  LEVELS.forEach(function(lab,l){
+    var b=el("button","l"+l,lab);b.type="button";b.dataset.action="level";b.dataset.level=String(l);
+    b.setAttribute("aria-pressed",String(t.level===l));seg.appendChild(b);
+  });
+  r.appendChild(seg);
+  var cnt=el("div","tk-count");cnt.appendChild(document.createTextNode("Solved"));
+  var m=el("button","tk-ib","−");m.type="button";m.dataset.action="dec";m.setAttribute("aria-label","Decrease solved count for "+t.name);
+  var o=el("output",null,String(t.solved));
+  var p=el("button","tk-ib","+");p.type="button";p.dataset.action="inc";p.setAttribute("aria-label","Increase solved count for "+t.name);
+  cnt.appendChild(m);cnt.appendChild(o);cnt.appendChild(p);r.appendChild(cnt);
+  var act=el("div","tk-acts");
+  var td=el("button","tk-btn","Practiced today");td.type="button";td.dataset.action="today";act.appendChild(td);
+  if(t.custom){var d=el("button","tk-ib","✕");d.type="button";d.dataset.action="del";d.setAttribute("aria-label","Delete "+t.name);d.title="Delete topic";act.appendChild(d)}
+  r.appendChild(act);
+  return r;
+}
+function renderList(){
+  var h=q("tk-list");h.textContent="";
+  var shown=state.topics.filter(function(t){return state.filter==="all"||String(t.level)===state.filter});
+  if(!shown.length){h.appendChild(el("div","tk-empty",state.topics.length?"No topics at this level yet.":"No topics yet."));return}
+  var groups={},order=[];
+  shown.forEach(function(t){if(!groups[t.group]){groups[t.group]=[];order.push(t.group)}groups[t.group].push(t)});
+  order.forEach(function(g){
+    h.appendChild(el("div","tk-group",g));
+    var list=el("div","tk-list");groups[g].forEach(function(t){list.appendChild(row(t))});h.appendChild(list);
+  });
+}
+function render(){renderSummary();renderFocus();renderFilters();renderList()}
+function find(id){for(var i=0;i<state.topics.length;i++)if(state.topics[i].id===id)return state.topics[i];return null}
+
+host.addEventListener("click",function(e){
+  var chip=e.target.closest(".tk-chip");
+  if(chip){state.filter=chip.dataset.filter;render();return}
+  var btn=e.target.closest("[data-action]"),rw=e.target.closest(".tk-row");
+  if(!btn||!rw)return;
+  var t=find(rw.dataset.id);if(!t)return;
+  var a=btn.dataset.action;
+  if(a==="level"){t.level=parseInt(btn.dataset.level,10);if(t.level>0&&!t.last)t.last=todayISO()}
+  else if(a==="inc"){t.solved=Math.min(9999,t.solved+1);t.last=todayISO()}
+  else if(a==="dec"){t.solved=Math.max(0,t.solved-1)}
+  else if(a==="today"){t.last=todayISO()}
+  else if(a==="del"){if(!window.confirm('Delete "'+t.name+'"?'))return;state.topics=state.topics.filter(function(x){return x.id!==t.id})}
+  save();render();
+});
+q("tk-add").addEventListener("submit",function(e){
+  e.preventDefault();
+  var name=q("tk-name").value.trim();if(!name)return;
+  if(state.topics.some(function(t){return t.name.toLowerCase()===name.toLowerCase()})){toast("That topic is already on the list.");return}
+  state.topics.push({id:uid(),name:name.slice(0,60),group:"My topics",level:0,solved:0,last:"",link:"",custom:true});
+  q("tk-name").value="";toast('Added "'+name+'".');save();render();
+});
+q("tk-export").addEventListener("click",function(){
+  var blob=new Blob([JSON.stringify({topics:state.topics},null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="shipit-practice-"+todayISO()+".json";
+  document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+  toast("Backup downloaded.");
+});
+q("tk-import").addEventListener("click",function(){q("tk-file").click()});
+q("tk-file").addEventListener("change",function(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var d=JSON.parse(rd.result);var imp=clean(Array.isArray(d)?d:d.topics);if(!imp.length)throw new Error("empty");
+      try{localStorage.setItem(KEY,JSON.stringify({topics:imp}))}catch(x){}
+      load();save();render();toast("Backup imported.");
+    }catch(err){toast("That file is not a valid backup.")}
+  };
+  rd.readAsText(f);e.target.value="";
+});
+q("tk-reset").addEventListener("click",function(){
+  if(!window.confirm("Reset every topic to Not started? Your own topics stay on the list."))return;
+  state.topics.forEach(function(t){t.level=0;t.solved=0;t.last=""});state.filter="all";save();render();toast("Levels reset.");
+});
+
+load();render();
+})();
 </script>
 </body>
 </html>
