@@ -6,7 +6,7 @@ const wt=k=>/^\d-quiz$/.test(k)?50:/^\d-\d$/.test(k)?20:/^p\d+-\d+$/.test(k)?10:
 const st=L=>50*L*(L-1),lvOf=x=>{let l=1;while(x>=st(l+1))l++;return l},nm=l=>NAMES[Math.min(l,NAMES.length)-1];
 const Store={k:"shipit-progress",d:{},
 init(){try{this.d=JSON.parse(localStorage.getItem(this.k)||"{}")}catch(e){this.d={}}},
-save(){try{localStorage.setItem(this.k,JSON.stringify(this.d))}catch(e){}},
+save(){try{localStorage.setItem(this.k,JSON.stringify(this.d))}catch(e){}if(typeof Account!=="undefined"&&Account)Account.queue()},
 get(k){return !!this.d[k]},
 set(k,v){const was=!!this.d[k];this.d[k]=v;if(v)this.touch();this.save();if(v&&!was)Rewards.gain(k)},
 day(){return new Date().toISOString().slice(0,10)},
@@ -145,8 +145,8 @@ Lofi.load();
 document.addEventListener("keydown",e=>{if(e.key==="Escape")Lofi.close()});
 window.addEventListener("pagehide",()=>{clearInterval(Lofi.iv);if(Lofi.ctx)try{Lofi.ctx.close()}catch(e){}});
 (function(){const top=document.querySelector(".top");if(!top)return;const t=document.createElement("span");t.className="tools";
-t.innerHTML=`<a class="mini" href="${location.pathname.indexOf("/stages/")>-1?"":"stages/"}squad.html">Squad</a><button class="mini" id="mubtn" aria-haspopup="true" aria-pressed="false">♪ Music</button><button class="mini" id="xpbtn" aria-haspopup="dialog"></button><button class="mini" id="thbtn" aria-haspopup="true">Theme</button>`;top.appendChild(t);
-t.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="xpbtn")Rewards.open();else if(b.id==="mubtn")Lofi.toggle();else Theme.toggle()});Rewards.pill();Lofi.ui();Lofi.arm()})();
+t.innerHTML=`<a class="mini" href="${location.pathname.indexOf("/stages/")>-1?"":"stages/"}squad.html">Squad</a><button class="mini" id="mubtn" aria-haspopup="true" aria-pressed="false">♪ Music</button><button class="mini" id="xpbtn" aria-haspopup="dialog"></button><button class="mini" id="thbtn" aria-haspopup="true">Theme</button><button class="mini" id="acbtn" aria-haspopup="dialog">Sign in</button>`;top.appendChild(t);
+t.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="xpbtn")Rewards.open();else if(b.id==="acbtn")Account.open();else if(b.id==="mubtn")Lofi.toggle();else Theme.toggle()});Rewards.pill();Lofi.ui();Lofi.arm()})();
 function mountTimer(el){let tot=900,left=900,t=null;
 el.innerHTML=`<div class="card timer"><div class="t-top"><b>Focus timer</b><span class="chips" style="margin:0">${[10,15,25].map(m=>`<button class="chip" data-m="${m}" aria-pressed="${m==15}">${m} min</button>`).join("")}</span></div><div class="t-time" id="tt">15:00</div><div class="bar"><i id="tb"></i></div><button class="btn" id="ts">Start</button><p class="note" id="tn" style="margin-top:12px">One small thing. Phone away, one tab open.</p></div>`;
 const tt=el.querySelector("#tt"),tb=el.querySelector("#tb"),ts=el.querySelector("#ts"),tn=el.querySelector("#tn");
@@ -156,3 +156,66 @@ ts.onclick=()=>{if(t){stop();return}if(left<=0)left=tot;ts.textContent="Pause";t
 t=setInterval(()=>{left--;draw();if(left<=0){stop();tn.textContent="Time’s up. Great work. Take a 3-minute break before the next one."}},1000)};
 el.onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;stop();tot=left=b.dataset.m*60;el.querySelectorAll("[data-m]").forEach(x=>x.setAttribute("aria-pressed",x===b));draw()};
 draw()}
+
+/* Accounts: Supabase Auth + one "progress" row per user (row-level security). Talks to Supabase over plain fetch, no library.
+   The publishable key below is meant to be public; the database rules are what keep each user's data private. */
+var Account={
+U:"https://oekqcwhnuzdsoxsqgkpq.supabase.co",K:"sb_publishable_5Q5NDgY7KEpp5RoNym474w_vAWiT4n7",SK:"shipit-auth",s:null,tm:null,dirty:false,
+load(){try{this.s=JSON.parse(localStorage.getItem(this.SK)||"null")}catch(e){this.s=null}},
+keep(s){this.s=s;try{s?localStorage.setItem(this.SK,JSON.stringify(s)):localStorage.removeItem(this.SK)}catch(e){}},
+async api(path,o){o=o||{};const h={apikey:this.K,"Content-Type":"application/json"};if(o.tok)h.Authorization="Bearer "+o.tok;if(o.h)Object.assign(h,o.h);
+const r=await fetch(this.U+path,{method:o.m||"GET",headers:h,body:o.b?JSON.stringify(o.b):undefined,keepalive:!!o.ka});
+let j=null;try{j=await r.json()}catch(e){}
+if(!r.ok)throw new Error((j&&(j.msg||j.error_description||j.message||j.error))||("Request failed ("+r.status+")"));return j},
+mk(j){return{at:j.access_token,rt:j.refresh_token,exp:j.expires_at||Math.floor(Date.now()/1e3)+(j.expires_in||3600),id:j.user.id,email:j.user.email}},
+async token(){const s=this.s;if(!s)return null;if(s.exp-60>Date.now()/1e3)return s.at;
+try{const j=await this.api("/auth/v1/token?grant_type=refresh_token",{m:"POST",b:{refresh_token:s.rt}});this.keep(this.mk(j));return this.s.at}
+catch(e){if(!(e instanceof TypeError)){this.keep(null);this.paint()}return null}},
+sig(o){const f=v=>v&&typeof v==="object"?"{"+Object.keys(v).sort().map(k=>JSON.stringify(k)+":"+f(v[k])).join(",")+"}":JSON.stringify(v);return f(o)},
+merge(a,b){const o={},ks=new Set(Object.keys(a).concat(Object.keys(b)));
+const la=a.__last||"",lb=b.__last||"",pk=la>=lb?a:b;
+ks.forEach(k=>{const x=a[k],y=b[k];
+if(k==="__best")o[k]=Math.max(x||0,y||0);
+else if(k==="__last"||k==="__streak"){if(pk[k]!==undefined)o[k]=pk[k]}
+else if(k==="__badges"||k==="__friends")o[k]=Object.assign({},y,x);
+else if(k==="__wk"){if(!x)o[k]=y;else if(!y)o[k]=x;else if(x.m>y.m)o[k]=x;else if(y.m>x.m)o[k]=y;else o[k]={m:x.m,k:Object.assign({},y.k,x.k)}}
+else if(k==="__id"||k==="__name")o[k]=y!==undefined?y:x;
+else if(typeof x==="boolean"&&typeof y==="boolean")o[k]=x||y;
+else o[k]=x!==undefined?x:y});return o},
+async pull(){const t=await this.token();if(!t)return false;
+const j=await this.api("/rest/v1/progress?select=data&user_id=eq."+this.s.id,{tok:t}),rem=(j&&j[0]&&j[0].data)||{},m=this.merge(Store.d,rem),ch=this.sig(m)!==this.sig(Store.d);
+Store.d=m;if(ch)Store.save();else if(this.sig(m)!==this.sig(rem))this.queue();return ch},
+send(t,ka){return this.api("/rest/v1/progress",{m:"POST",tok:t,ka:ka,h:{Prefer:"resolution=merge-duplicates,return=minimal"},b:{user_id:this.s.id,data:Store.d,updated_at:new Date().toISOString()}})},
+async push(){const t=await this.token();if(!t)return;try{await this.send(t,false);this.dirty=false}catch(e){}},
+queue(){if(!this.s)return;this.dirty=true;clearTimeout(this.tm);this.tm=setTimeout(()=>this.push(),1200)},
+flush(){if(!this.s||!this.dirty||this.s.exp-30<=Date.now()/1e3)return;this.dirty=false;this.send(this.s.at,true).catch(()=>{})},
+async hash(){if(!/access_token=/.test(location.hash))return;const p=new URLSearchParams(location.hash.slice(1));history.replaceState(null,"",location.pathname+location.search);
+if(p.get("type")==="recovery")return;const at=p.get("access_token"),rt=p.get("refresh_token");
+try{const u=await this.api("/auth/v1/user",{tok:at});this.keep({at:at,rt:rt,exp:+p.get("expires_at")||Math.floor(Date.now()/1e3)+(+p.get("expires_in")||3600),id:u.id,email:u.email})}catch(e){}},
+paint(){const b=document.getElementById("acbtn");if(b)b.textContent=this.s?"Account":"Sign in"},
+async init(){this.load();await this.hash();this.paint();if(this.s){try{if(await this.pull())location.reload()}catch(e){}}},
+async signOut(){clearTimeout(this.tm);try{const t=await this.token();if(t){await this.send(t,false);await this.api("/auth/v1/logout",{m:"POST",tok:t})}}catch(e){}
+this.keep(null);Store.d={};try{localStorage.removeItem(Store.k)}catch(e){}location.reload()},
+open(){const o=document.createElement("div");o.className="ovl";let mode="in";
+const x=()=>{o.remove();document.removeEventListener("keydown",kd)},kd=e=>{if(e.key==="Escape")x()};
+const draw=()=>{if(this.s){o.innerHTML=`<div class="card modal" role="dialog" aria-modal="true" aria-label="Account"><div class="t-top"><h2 style="margin:0">Your account</h2><button class="ghost" id="acx">Close</button></div><p class="sub" style="margin-top:8px">Signed in as <b>${escH(this.s.email)}</b></p><p class="note">Your progress is saved to your account and follows you to any device.</p><div class="row"><button class="btn" id="acsync">Sync now</button><button class="ghost btn" id="acout">Sign out</button></div><p class="note" id="acmsg" role="status" aria-live="polite"></p><p class="fine">Signing out clears the progress stored in this browser. It stays safe in your account.</p></div>`}
+else{o.innerHTML=`<div class="card modal" role="dialog" aria-modal="true" aria-label="Sign in"><div class="t-top"><h2 style="margin:0">${mode==="in"?"Sign in":"Create account"}</h2><button class="ghost" id="acx">Close</button></div><p class="sub" style="margin-top:8px">Save your progress and pick it up on any device.</p><div class="tabs" style="margin:14px 0"><button class="chip" data-m="in" aria-pressed="${mode==="in"}">Sign in</button><button class="chip" data-m="up" aria-pressed="${mode==="up"}">Create account</button></div><form id="acf" novalidate><label for="acem" style="padding:0;font-weight:700">Email</label><input class="field" id="acem" type="email" autocomplete="email" required style="width:100%;margin:6px 0 12px"><label for="acpw" style="padding:0;font-weight:700">Password</label><input class="field" id="acpw" type="password" minlength="6" autocomplete="${mode==="in"?"current-password":"new-password"}" required style="width:100%;margin:6px 0 4px"><p class="fine" style="margin:0 0 12px">At least 6 characters.</p><button class="btn" id="acgo" type="submit" style="width:100%">${mode==="in"?"Sign in":"Create account"}</button></form><p class="note" id="acmsg" role="status" aria-live="polite"></p><p class="fine">Your existing progress in this browser is kept and merged into your account.</p></div>`}
+const f=o.querySelector("#acem")||o.querySelector("#acx");f&&f.focus()};
+const say=t=>{const m=o.querySelector("#acmsg");if(m)m.textContent=t};
+o.addEventListener("click",async e=>{const t=e.target;if(t===o||t.id==="acx"){x();return}
+if(t.dataset&&t.dataset.m){mode=t.dataset.m;draw();return}
+if(t.id==="acout"){say("Signing out…");this.signOut();return}
+if(t.id==="acsync"){say("Syncing…");try{if(await this.pull())location.reload();else{await this.push();say("All synced.")}}catch(er){say("Could not sync: "+er.message)}}});
+o.addEventListener("submit",async e=>{e.preventDefault();const em=o.querySelector("#acem").value.trim(),pw=o.querySelector("#acpw").value,go=o.querySelector("#acgo");
+if(!em||pw.length<6){say("Enter your email and a password of at least 6 characters.");return}
+go.disabled=true;say(mode==="in"?"Signing in…":"Creating your account…");
+try{let j;
+if(mode==="up"){j=await this.api("/auth/v1/signup",{m:"POST",b:{email:em,password:pw}});
+if(!j.access_token){go.disabled=false;say(j.identities&&!j.identities.length?"That email may already have an account. Try signing in.":"Almost done. Check your email and click the confirmation link, then sign in.");return}}
+else j=await this.api("/auth/v1/token?grant_type=password",{m:"POST",b:{email:em,password:pw}});
+this.keep(this.mk(j));this.paint();say("Signed in. Syncing your progress…");await this.pull();await this.push();location.reload()}
+catch(er){go.disabled=false;say(er instanceof TypeError?"Can’t reach the server. Check your connection.":er.message)}});
+document.body.appendChild(o);document.addEventListener("keydown",kd);draw()}};
+window.addEventListener("pagehide",()=>Account.flush());
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")Account.flush()});
+Account.init();
