@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MCQ Practice | Ship It</title>
+<script>try{var t=localStorage.getItem("shipit-theme");if(!["cinema","midnight","sage"].includes(t))t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.quiz-wrap{max-width:900px;margin:0 auto;padding:0 22px 100px}
+.quiz-hero{padding:44px 0 28px}
+.quiz-kicker{color:var(--accent);font-size:.82rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.quiz-hero h1{margin:10px 0 12px;font-size:clamp(2.2rem,6vw,3.7rem)}
+.quiz-hero p{max-width:620px;color:var(--mute);line-height:1.8}
+.quiz-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:clamp(20px,4vw,34px);margin:18px 0;box-shadow:0 12px 36px rgba(0,0,0,.045)}
+.quiz-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.quiz-field label{display:block;font-size:.88rem;font-weight:700;margin-bottom:8px;color:var(--mute)}
+.quiz-field select{width:100%;min-height:50px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;padding:10px 14px}
+.quiz-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--mute);font-size:.9rem;flex-wrap:wrap}
+.quiz-progress{height:7px;background:var(--soft);border-radius:99px;overflow:hidden;margin:16px 0 24px}
+.quiz-progress i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .2s}
+.quiz-question{font-size:clamp(1.18rem,3vw,1.55rem);line-height:1.5;margin:10px 0 22px}
+.quiz-options{display:grid;gap:12px}
+.quiz-option{width:100%;text-align:left;display:flex;align-items:flex-start;gap:13px;padding:15px 17px;border:1px solid var(--line);border-radius:13px;background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.quiz-option:hover:not(:disabled){border-color:var(--accent);background:var(--soft)}
+.quiz-option:disabled{cursor:default;opacity:1}
+.quiz-option .letter{flex:0 0 28px;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--soft);font-weight:700;font-size:.85rem}
+.quiz-option.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--card))}
+.quiz-option.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--card))}
+.quiz-feedback{padding:16px 18px;border-radius:12px;margin-top:18px;background:var(--soft);line-height:1.7}
+.quiz-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+.quiz-hidden{display:none!important}
+.quiz-result{text-align:center;padding:18px 0}
+.quiz-score{font-size:clamp(3rem,10vw,5rem);font-weight:700;line-height:1.1;margin:12px 0}
+.quiz-review{border-top:1px solid var(--line);padding:18px 0}
+.quiz-review p{line-height:1.7}
+.quiz-review small{color:var(--mute)}
+.quiz-pill{display:inline-block;padding:5px 10px;border-radius:99px;background:var(--soft);color:var(--accent);font-size:.8rem;font-weight:700}
+@media(max-width:620px){.quiz-grid{grid-template-columns:1fr}.quiz-wrap{padding:0 16px 80px}.quiz-hero{padding-top:30px}.quiz-card{border-radius:16px}}
+</style>
+</head>
+<body>
+<header class="top"><a href="../index.html">Ship It</a><nav class="top-nav" aria-label="Main navigation">
+<a href="../index.html">Home</a><a href="../index.html#pathh">Roadmap</a><a href="../index.html#trackerh">Practice</a><a href="../index.html#projs">Projects</a><a href="mcq.html" aria-current="page">MCQ Practice</a><a href="flashcards.html">Flashcards</a><a href="cheatsheets.html">Cheat sheets</a>
+</nav><span class="streak" id="streak"></span></header>
+<main class="quiz-wrap">
+<section class="quiz-hero"><div class="quiz-kicker">Test your understanding</div><h1>MCQ practice</h1><p>Pick a stage, choose exactly what you want to practise, set your difficulty and question count. Get instant feedback, explanations and a review of every answer.</p></section>
+<section class="quiz-card" id="setup">
+<div class="quiz-grid">
+<div class="quiz-field"><label for="stage">Learning stage</label><select id="stage"></select></div>
+<div class="quiz-field"><label for="topic">Topic</label><select id="topic"></select></div>
+<div class="quiz-field"><label for="difficulty">Difficulty</label><select id="difficulty"><option value="all">All levels</option><option value="Easy">Easy</option><option value="Medium">Medium</option><option value="Hard">Hard</option></select></div>
+<div class="quiz-field"><label for="count">Number of questions</label><select id="count"><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="15">15 questions</option><option value="all">All available</option></select></div>
+</div>
+<div class="quiz-actions"><span class="note" id="available" style="align-self:center;margin:0">Choose a topic to see available questions.</span><button class="btn" id="start">Start practice →</button></div>
+</section>
+<section class="quiz-card quiz-hidden" id="play">
+<div class="quiz-meta"><span id="qcount">Question 1</span><span id="qtag" class="quiz-pill">Easy</span><span id="score-live">0 correct</span></div>
+<div class="quiz-progress"><i id="progress"></i></div>
+<h2 class="quiz-question" id="question"></h2>
+<div class="quiz-options" id="options"></div>
+<div class="quiz-feedback quiz-hidden" id="feedback" aria-live="polite"></div>
+<div class="quiz-actions"><button class="ghost" id="quit">End session</button><button class="btn" id="next" disabled>Next question →</button></div>
+</section>
+<section class="quiz-card quiz-hidden" id="results">
+<div class="quiz-result"><span class="quiz-pill">Session complete</span><div class="quiz-score" id="final-score">0/0</div><h2 id="result-title">Good work.</h2><p class="sub" id="result-copy"></p><div class="quiz-actions" style="justify-content:center"><button class="btn" id="retry-wrong">Retry incorrect answers</button><button class="ghost" id="new-quiz">New practice</button></div></div>
+<div id="review"></div>
+</section>
+<p class="note" style="text-align:center;margin-top:28px">Your answers are reviewed at the end of each session. Questions are shuffled every time you start.</p>
+</main>
+<script src="../js/app.js"></script>
+<script>
+const BANK=[
+["Foundations","Programming basics","Easy","Which keyword declares a block-scoped variable that cannot be reassigned in JavaScript?",["var","let","const","static"],2,"const creates a block-scoped binding that cannot be reassigned. The object it points to may still be mutable."],
+["Foundations","Programming basics","Easy","What does a function's return statement do?",["Repeats the function","Sends a value back to the caller","Prints a value to the console","Declares a variable"],1,"return ends the function call and provides a result to the caller."],
+["Foundations","Programming basics","Medium","What is the main benefit of a pure function?",["It always runs faster","It avoids all parameters","Same input gives same output without side effects","It can only return numbers"],2,"Pure functions are predictable and easier to test because they do not depend on or mutate external state."],
+["Foundations","Git and terminal","Easy","Which command creates a new Git branch?",["git fork","git branch branch-name","git init branch-name","git make branch-name"],1,"git branch creates a branch. Use git switch -c branch-name to create and switch to it."],
+["Foundations","Git and terminal","Medium","What does git pull usually do?",["Deletes remote branches","Fetches remote changes and integrates them","Uploads local commits only","Rewrites the repository history"],1,"git pull is typically fetch followed by merge (or rebase, depending on configuration)."],
+["Foundations","Web fundamentals","Easy","What does HTTP status code 404 mean?",["Unauthorized","Server error","Resource not found","Successful creation"],2,"404 indicates that the requested resource could not be found."],
+["DSA","Big-O and complexity","Easy","An algorithm scans an array once. What is its time complexity?",["O(1)","O(log n)","O(n)","O(n²)"],2,"A single pass visits each of n elements once, so the work grows linearly."],
+["DSA","Big-O and complexity","Medium","What is the time complexity of two nested loops that each run n times?",["O(n)","O(2n)","O(n log n)","O(n²)"],3,"The inner loop runs n times for each of n outer iterations: n × n."],
+["DSA","Arrays and hash maps","Easy","Which data structure is best for average O(1) key lookup?",["Stack","Hash map","Linked list","Binary tree"],1,"A hash map uses a hash function to locate a key's bucket in average constant time."],
+["DSA","Arrays and hash maps","Medium","You need to find whether any two values sum to a target. Which common approach is O(n) average time?",["Compare every pair","Sort with bubble sort","Track seen values in a hash set","Use nested loops"],2,"For each value x, check whether target - x has already been seen, then add x."],
+["DSA","Stacks and queues","Easy","Which principle does a stack follow?",["FIFO","LIFO","Random order","Sorted order"],1,"Last In, First Out: the most recently pushed item is popped first."],
+["DSA","Trees and graphs","Medium","Which traversal finds the shortest path in an unweighted graph?",["DFS","BFS","Inorder","Postorder"],1,"Breadth-first search explores by distance layers, so the first visit gives a shortest path in an unweighted graph."],
+["DSA","Recursion and dynamic programming","Hard","What is memoization?",["Sorting results","Caching results of previously solved subproblems","Removing recursion","Using two pointers"],1,"Memoization stores computed answers so overlapping subproblems are not solved repeatedly."],
+["DSA","Sorting and searching","Medium","Binary search requires which condition?",["Array must be reversed","Data must be sorted or predicate monotonic","All values must be unique","Array length must be even"],1,"Binary search discards half the search space each step, which requires an ordered search condition."],
+["Web & Backend","HTML and CSS","Easy","Which HTML element represents the main content of a page?",["<section>","<main>","<aside>","<footer>"],1,"The main element identifies the dominant content of the document."],
+["Web & Backend","HTML and CSS","Medium","Which CSS layout is best suited to two-dimensional rows and columns?",["Float","Grid","Inline","Position absolute"],1,"CSS Grid is designed for two-dimensional layout; Flexbox is primarily one-dimensional."],
+["Web & Backend","JavaScript in browser","Easy","What does event bubbling mean?",["Events stop at the target","An event propagates from target toward ancestors","The browser repeats the event","Events only work on buttons"],1,"During bubbling, the event travels from the target element up through its ancestors."],
+["Web & Backend","JavaScript in browser","Medium","Why should code check response.ok after fetch()?",["fetch never returns a response","HTTP 4xx/5xx responses do not automatically reject the promise","It converts JSON to text","It retries the request"],1,"fetch rejects for network-level failures, but HTTP error statuses still resolve to a Response."],
+["Web & Backend","React","Easy","Why does React need a key when rendering a list?",["To style each item","To identify items consistently between renders","To encrypt the item","To make every item clickable"],1,"Stable keys help React match list elements as items are inserted, removed or reordered."],
+["Web & Backend","APIs and backend","Medium","Which HTTP method is conventionally used for a partial resource update?",["GET","POST","PATCH","TRACE"],2,"PATCH applies partial modifications; PUT conventionally replaces the resource representation."],
+["Web & Backend","APIs and backend","Hard","What is the difference between authentication and authorization?",["They mean the same thing","Authentication checks identity; authorization checks permissions","Authorization checks identity; authentication checks permissions","Both only apply to databases"],1,"Authentication establishes who a user is. Authorization determines what that user may do."],
+["Data & Systems","SQL and databases","Easy","Which SQL clause filters rows before grouping?",["ORDER BY","WHERE","HAVING","LIMIT"],1,"WHERE filters input rows; HAVING filters groups after aggregation."],
+["Data & Systems","SQL and databases","Medium","What does a foreign key enforce?",["Faster sorting","Referential integrity between related tables","Unique values in every column","Automatic encryption"],1,"A foreign key ensures referenced rows exist, subject to the constraint rules."],
+["Data & Systems","Indexes and performance","Medium","What is a common trade-off of adding a database index?",["Reads and writes both become free","Faster reads for supported queries, but extra storage and write overhead","It removes the need for schema design","It guarantees every query is O(1)"],1,"Indexes speed up some lookups but take space and must be maintained when data changes."],
+["Data & Systems","Caching and queues","Hard","Why should a queue consumer often be idempotent?",["Queues guarantee exactly-once delivery","Messages may be delivered more than once","It makes messages arrive in order","It removes the need for retries"],1,"Retries and redelivery can cause duplicate processing; idempotent handling prevents duplicate side effects."],
+["Data & Systems","Docker and CI/CD","Easy","What is a Docker image?",["A running process","A template used to create containers","A cloud database","A Git branch"],1,"An image packages an application and its dependencies; a container is a running instance."],
+["Capstone","Project planning","Easy","What should a useful MVP focus on?",["Every possible feature","The smallest coherent version that validates the core user need","Only visual polish","Complex infrastructure first"],1,"An MVP tests the central value proposition with the smallest useful feature set."],
+["Capstone","Architecture and testing","Medium","What is the main purpose of an integration test?",["Test a function in isolation","Verify multiple components work together across a boundary","Replace all unit tests","Measure only page load speed"],1,"Integration tests check interactions such as an API communicating with a database."],
+["Capstone","Deployment and documentation","Medium","Which information belongs in a project README?",["Only the author's name","Setup, configuration, features, tests and deployment instructions","Private API keys","Unrelated personal notes"],1,"A README should help another developer understand, run, test and evaluate the project."],
+["Job Readiness","Resume and portfolio","Easy","Which resume bullet is generally strongest?",["Responsible for coding","Worked on many tasks","Built an API used by 3 project modules and reduced response time by 25%","I am hardworking"],2,"Specific action plus measurable impact communicates evidence rather than a vague responsibility."],
+["Job Readiness","Coding interviews","Medium","What should you do before optimizing an interview solution?",["Start coding immediately","Clarify inputs, constraints and edge cases","Assume the examples are exhaustive","Avoid discussing complexity"],1,"Clarifying the contract prevents solving the wrong problem and surfaces important edge cases."],
+["Job Readiness","System design","Hard","What does p95 latency represent?",["Average latency","The slowest request","95% of requests complete at or below this latency","The number of requests per second"],2,"The 95th percentile is a tail-latency measure: 95% of observations are no slower than this value."]
+];
+const STAGES=[...new Set(BANK.map(q=>q[0]))];
+const $=id=>document.getElementById(id);
+let questions=[],at=0,score=0,answered=false,history=[],wrong=[];
+const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b};
+function fillStages(){ $("stage").innerHTML='<option value="all">All stages</option>'+STAGES.map(s=>'<option>'+s+'</option>').join("");fillTopics()}
+function fillTopics(){const stage=$("stage").value;const topics=[...new Set(BANK.filter(q=>stage==="all"||q[0]===stage).map(q=>q[1]))];$("topic").innerHTML='<option value="all">All topics</option>'+topics.map(t=>'<option>'+t+'</option>').join("");updateAvailable()}
+function filtered(){return BANK.filter(q=>($("stage").value==="all"||q[0]===$("stage").value)&&($("topic").value==="all"||q[1]===$("topic").value)&&($("difficulty").value==="all"||q[2]===$("difficulty").value))}
+function updateAvailable(){$("available").textContent=filtered().length+" questions available for this selection."}
+function start(pool){const source=pool||filtered();if(!source.length){alert("No questions match these filters. Try another difficulty or topic.");return}const n=$("count").value;questions=shuffle(source).slice(0,n==="all"?source.length:Math.min(+n,source.length));at=0;score=0;history=[];wrong=[];$("setup").classList.add("quiz-hidden");$("results").classList.add("quiz-hidden");$("play").classList.remove("quiz-hidden");render();window.scrollTo({top:0,behavior:"smooth"})}
+function render(){const q=questions[at];answered=false;$("qcount").textContent="Question "+(at+1)+" of "+questions.length;$("qtag").textContent=q[2]+" · "+q[1];$("score-live").textContent=score+" correct";$("progress").style.width=(at/questions.length*100)+"%";$("question").textContent=q[3];$("feedback").classList.add("quiz-hidden");$("next").disabled=true;$("next").textContent=at===questions.length-1?"See results →":"Next question →";$("options").innerHTML=q[4].map((o,i)=>'<button class="quiz-option" data-choice="'+i+'"><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+o.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</span></button>').join("")}
+function choose(i){if(answered)return;answered=true;const q=questions[at],ok=i===q[5];if(ok)score++;else wrong.push(q);history.push({q,chosen:i,ok});document.querySelectorAll(".quiz-option").forEach((b,j)=>{b.disabled=true;if(j===q[5])b.classList.add("correct");if(j===i&&!ok)b.classList.add("wrong")});$("feedback").classList.remove("quiz-hidden");$("feedback").innerHTML='<b>'+(ok?"Correct!":"Not quite.")+'</b> '+q[6]+'<div style="margin-top:8px;font-size:.88rem;color:var(--mute)">Correct answer: '+String.fromCharCode(65+q[5])+'. '+q[4][q[5]].replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div>';$("score-live").textContent=score+" correct";$("next").disabled=false}
+function finish(){$("play").classList.add("quiz-hidden");$("results").classList.remove("quiz-hidden");const pct=Math.round(score/questions.length*100);$("final-score").textContent=score+"/"+questions.length;$("result-title").textContent=pct>=80?"Excellent work!":pct>=60?"Good progress. Keep going.":"Good effort. Review and try again.";$("result-copy").textContent=pct+"% correct · "+(questions.length-score)+" to review. Read the explanations below to lock in the concepts.";$("retry-wrong").classList.toggle("quiz-hidden",!wrong.length);$("review").innerHTML=history.map((h,i)=>'<div class="quiz-review"><small>Question '+(i+1)+' · '+h.q[1]+' · '+(h.ok?"Correct":"Incorrect")+'</small><p><b>'+h.q[3].replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</b></p><p>Your answer: '+(h.chosen<0?"Not answered":h.q[4][h.chosen])+'<br>Correct: '+h.q[4][h.q[5]]+'</p><p class="sub">'+h.q[6]+'</p></div>').join("");window.scrollTo({top:0,behavior:"smooth"})}
+$("stage").addEventListener("change",fillTopics);$("topic").addEventListener("change",updateAvailable);$("difficulty").addEventListener("change",updateAvailable);
+$("start").addEventListener("click",()=>start());$("options").addEventListener("click",e=>{const b=e.target.closest("[data-choice]");if(b)choose(+b.dataset.choice)});
+$("next").addEventListener("click",()=>{if(!answered)return;if(at<questions.length-1){at++;render()}else finish()});
+$("quit").addEventListener("click",()=>{if(confirm("End this practice session? Your answers so far will not be scored.")){$("play").classList.add("quiz-hidden");$("setup").classList.remove("quiz-hidden")}});
+$("new-quiz").addEventListener("click",()=>{$("results").classList.add("quiz-hidden");$("setup").classList.remove("quiz-hidden");window.scrollTo({top:0,behavior:"smooth"})});
+$("retry-wrong").addEventListener("click",()=>start(wrong));
+fillStages();
+</script>
+</body></html>
