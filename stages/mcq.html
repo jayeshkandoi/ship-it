@@ -172,7 +172,12 @@ const TOPIC_LESSONS={
 "Coding interviews":"Clarify constraints, test edge cases and explain complexity. Compare alternatives and communicate your reasoning."
 };
 function topicLesson(q){
- if(TOPIC_LESSONS[q[1]])return TOPIC_LESSONS[q[1]];
+ const topic=String(q[1]||'');
+ if(TOPIC_LESSONS[topic])return TOPIC_LESSONS[topic];
+ const t=topic.toLowerCase();
+ if(/network|http|tls|dns|tcp|ip address|proxy/.test(t))return "Trace a request from browser to server: DNS resolves the host, TCP establishes a connection, TLS protects it, and HTTP carries the request and response. Review ports, status codes, headers and proxies.";
+ if(/git|github|version control/.test(t))return "Review repositories, commits, branches, remotes, pull requests and merge conflicts. Practise the edit → stage → commit → push workflow and learn how to inspect or undo changes safely.";
+ if(/command line|terminal|shell/.test(t))return "Practise navigating paths, listing and creating files, running commands, using pipes and quoting arguments. Understand the current directory and check destructive commands before running them.";
  if(q[0]==="DSA")return "Identify the algorithm pattern, understand its invariant, and analyze time and space complexity. Work through a small example.";
  if(q[0]==="Web & Backend")return "Trace how the browser, frontend, API and server interact. Review security and error cases.";
  if(q[0]==="Data & Systems")return "Focus on data correctness, performance and failure handling. Review the guarantees and trade-offs.";
@@ -182,6 +187,10 @@ function topicLesson(q){
 }
 function topicLearningLink(q){
  const stage=String(q[0]||'').toLowerCase(),topic=String(q[1]||'').toLowerCase();
+ // Match the actual topic before applying broad stage defaults.
+ if(/network|http|tls|dns|tcp|ip address|proxy/.test(topic))return 'web-backend.html#lesson-5';
+ if(/git|github|version control/.test(topic))return stage.includes('capstone')?'capstone.html#lesson-3':'foundations.html#panel';
+ if(/command line|terminal|shell/.test(topic))return 'foundations.html#panel';
  if(stage.includes('foundation'))return 'foundations.html#panel';
  if(stage==='dsa'||stage.includes('data structures'))return 'dsa.html#panel';
  if(stage.includes('web')||stage.includes('backend')){let n=1;if(/css|layout|responsive/.test(topic))n=2;else if(/javascript|browser|async|dom/.test(topic))n=3;else if(/react/.test(topic))n=4;else if(/api|rest|node|backend|authentication|security/.test(topic))n=5;return 'web-backend.html#lesson-'+n;}
