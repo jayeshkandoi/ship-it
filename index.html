@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ship It: learn software development one small step at a time</title>
 <meta name="description" content="A cinematic, step-by-step path from beginner to job-ready developer, built for people who get distracted easily.">
-<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{var t=localStorage.getItem("shipit-theme");if(!["cinema","midnight","sage"].includes(t))t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <style>
@@ -71,7 +71,9 @@
 </style>
 </head>
 <body>
-<header class="top"><b>Ship It</b><span class="streak" id="streak"></span></header>
+<header class="top"><b>Ship It</b><nav class="top-nav" aria-label="Main navigation">
+<a href="#hero" aria-current="page">Home</a><a href="#pathh">Roadmap</a><a href="#trackerh">Practice</a><a href="#projs">Projects</a><a href="stages/flashcards.html">Flashcards</a><a href="stages/cheatsheets.html">Cheat sheets</a>
+</nav><span class="streak" id="streak"></span></header>
 <section class="hero"><pre class="ghost-code" aria-hidden="true">def two_sum(nums, target):
     seen = {}
     for i, x in enumerate(nums):
