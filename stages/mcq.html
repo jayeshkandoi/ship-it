@@ -77,6 +77,7 @@
 <script src="../js/app.js"></script>
 <script src="../js/mcq-extra.js"></script>
 <script src="../js/mcq-batch-2.js"></script>
+<script src="../js/mcq-batch-3.js"></script>
 <script>
 const BANK=[
 ["Foundations","Programming basics","Easy","Which keyword declares a block-scoped variable that cannot be reassigned in JavaScript?",["var","let","const","static"],2,"const creates a block-scoped binding that cannot be reassigned. The object it points to may still be mutable."],
@@ -112,7 +113,7 @@ const BANK=[
 ["Job Readiness","Coding interviews","Medium","What should you do before optimizing an interview solution?",["Start coding immediately","Clarify inputs, constraints and edge cases","Assume the examples are exhaustive","Avoid discussing complexity"],1,"Clarifying the contract prevents solving the wrong problem and surfaces important edge cases."],
 ["Job Readiness","System design","Hard","What does p95 latency represent?",["Average latency","The slowest request","95% of requests complete at or below this latency","The number of requests per second"],2,"The 95th percentile is a tail-latency measure: 95% of observations are no slower than this value."]
 ];
-BANK.push(...EXTRA_BANK,...MCQ_BATCH_2);
+BANK.push(...EXTRA_BANK,...MCQ_BATCH_2,...MCQ_BATCH_3);
 const STAGES=[...new Set(BANK.map(q=>q[0]))];
 const $=id=>document.getElementById(id);
 let questions=[],at=0,score=0,answered=false,history=[],wrong=[];
