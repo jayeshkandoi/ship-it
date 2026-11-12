@@ -440,3 +440,35 @@ html[data-theme=pulse] .tk-chip[aria-pressed=true]{background:rgba(255,181,46,.1
 html[data-theme=pulse] .tk-seg button[aria-pressed=true]{background:var(--c);color:#17100a}
 html[data-theme=pulse] .field{background:#0e1019;border-color:rgba(132,143,191,.28)}
 @media(max-width:720px){html[data-theme=pulse] .hero{min-height:430px;padding:64px 18px 58px}}
+
+/* Shared slide-out navigation and account menu */
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;padding:10px clamp(16px,3vw,34px);min-height:66px}
+.top .top-nav,.top .tools{display:none!important}
+.top-brand{font-size:1.25rem;font-weight:800;letter-spacing:-.03em;text-decoration:none;color:var(--ink);white-space:nowrap}
+.nav-spacer{flex:1}
+.nav-icon{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:13px;background:var(--card);color:var(--ink);font-size:1.35rem;cursor:pointer}
+.nav-icon:hover{border-color:var(--accent);box-shadow:0 0 18px color-mix(in srgb,var(--accent) 18%,transparent)}
+.account-glyph{font-size:1.45rem}
+.site-drawer{position:fixed;z-index:60;inset:0 auto 0 0;width:min(340px,88vw);padding:22px 18px;background:var(--card);border-right:1px solid var(--line);box-shadow:20px 0 60px rgba(0,0,0,.35);transform:translateX(-105%);transition:transform .25s ease;overflow-y:auto}
+.site-drawer.open{transform:translateX(0)}
+.drawer-shade{position:fixed;z-index:59;inset:0;border:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer-shade.show{opacity:1;pointer-events:auto}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 20px;border-bottom:1px solid var(--line);font-size:1.1rem}
+.drawer-close{width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);font-size:1.4rem;cursor:pointer}
+.site-drawer nav{display:grid;gap:7px;padding-top:18px}
+.site-drawer nav a{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 14px;border:1px solid transparent;border-radius:12px;color:var(--ink);text-decoration:none;font-weight:700}
+.site-drawer nav a:hover,.site-drawer nav a[aria-current=page]{background:var(--soft);border-color:var(--line);color:var(--accent)}
+.site-drawer nav a span{color:var(--mute);font-size:.8rem}
+.drawer-foot{margin:28px 6px 0;color:var(--mute);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase}
+.account-menu{position:fixed;z-index:70;top:calc(env(safe-area-inset-top,0px) + 76px);right:clamp(12px,3vw,32px);width:min(290px,calc(100vw - 24px));padding:12px;background:var(--card);border:1px solid var(--line);border-radius:17px;box-shadow:0 22px 65px rgba(0,0,0,.42);opacity:0;visibility:hidden;transform:translateY(-8px);transition:.18s ease}
+.account-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
+.account-menu-head{display:flex;align-items:center;gap:12px;padding:10px 9px 15px;margin-bottom:7px;border-bottom:1px solid var(--line)}
+.account-avatar{width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:var(--soft);color:var(--accent);font-size:1.35rem}
+.account-menu-head b,.account-menu-head small{display:block}
+.account-menu-head small{color:var(--mute);font-size:.78rem;margin-top:3px}
+.account-menu>a,.account-menu>button{width:100%;display:flex;align-items:center;gap:12px;padding:12px 10px;border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-weight:700;text-decoration:none;text-align:left;cursor:pointer}
+.account-menu>a:hover,.account-menu>button:hover{background:var(--soft)}
+.account-menu>a span,.account-menu>button span{width:22px;color:var(--accent);font-size:1.1rem;text-align:center}
+.account-menu>button b{margin-left:auto;color:var(--mute);font-size:.78rem;font-weight:600}
+@media(max-width:560px){.top{gap:10px;padding:9px 12px}.nav-icon{width:40px;height:40px}.top .streak{font-size:.78rem}}
+@media(prefers-reduced-motion:reduce){.site-drawer,.drawer-shade,.account-menu{transition:none}}
