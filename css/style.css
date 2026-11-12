@@ -186,3 +186,73 @@ textarea.field{min-height:84px;font:14px/1.4 ui-monospace,Menlo,Consolas,monospa
 .field:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .msg{font-weight:700;margin:10px 0 0;min-height:1.4em}
 .gap{border-left:4px solid var(--warm);background:var(--soft);padding:10px 14px;border-radius:0 6px 6px 0;margin:0 0 12px;font-weight:700}
+
+/* --- Spacious navigation + calmer reading layout --- */
+.top{padding:12px clamp(16px,3vw,36px);gap:10px 18px;min-height:68px}
+.top-nav{display:flex;align-items:center;gap:6px;min-width:0;flex:1;overflow-x:auto;scrollbar-width:none}
+.top-nav::-webkit-scrollbar{display:none}
+.top-nav a{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;text-decoration:none;color:var(--mute);font-size:.9rem;font-weight:700;padding:8px 13px;border:1px solid transparent;border-radius:999px;transition:background .18s,border-color .18s,color .18s}
+.top-nav a:hover,.top-nav a:focus-visible{color:var(--ink);background:var(--soft);border-color:var(--line)}
+.top-nav a[aria-current=page]{color:var(--accent);background:var(--soft);border-color:var(--line)}
+.top .tools{flex-wrap:wrap;justify-content:flex-end}
+.wrap{max-width:880px;padding:0 clamp(18px,3vw,32px) 104px}
+.wide{max-width:1240px;padding:0 clamp(18px,3vw,32px) 104px}
+h1{margin:54px 0 14px;line-height:1.12}
+h2{margin:58px 0 12px;line-height:1.25}
+.sub,.note{line-height:1.8;max-width:72ch}
+.card{border-radius:16px;padding:clamp(24px,4vw,38px);border:1px solid var(--line);border-top:1px solid var(--line);background:var(--card);box-shadow:0 8px 28px rgba(0,0,0,.035)}
+.focus{border:1px solid var(--accent)}
+.blk{margin:28px 0 0}
+.blk h3{margin:0 0 10px}
+.blk p{line-height:1.85;margin:0 0 12px}
+.blk li{line-height:1.8;margin-bottom:8px}
+.try{margin-top:30px;padding:18px 20px;border-radius:12px}
+.lesson{margin:26px 0}
+.lesson h2{margin:0 0 14px}
+.lesson>p:not(.meta){line-height:1.85}
+.lesson details{padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--card) 92%,var(--soft));margin:16px 0}
+.lesson summary{padding:5px 0}
+.code,.diagram{border-radius:12px;padding:18px 20px;margin:12px 0 18px;line-height:1.75}
+.btn,.ghost,.chip,.mini{border-radius:12px}
+.btn,.ghost{padding:11px 22px}
+.chip{border-radius:999px}
+.poster{border-radius:16px;filter:saturate(.78);padding:18px}
+.poster:hover,.poster:focus-visible{filter:saturate(.92)}
+.scroller{gap:18px;padding:14px 4px 28px}
+.rowh{margin:52px 0 10px}
+.tabs{gap:10px;margin:30px 0 24px;flex-wrap:wrap}
+.tabs .chip{flex:0 1 auto;min-width:120px}
+.opt{border-radius:12px;padding:16px 18px;margin-bottom:14px}
+details.st{border-radius:14px;margin-bottom:14px}
+details.st summary{padding:18px 22px}
+details.st ul{padding:0 24px 22px}
+.nav{margin-top:26px}
+.link-card{border-radius:16px}
+.fc{margin:16px 0 24px}
+.face{border-radius:16px;padding:clamp(24px,4vw,40px)}
+@media(max-width:900px){
+ .top{align-items:center}
+ .top-nav{order:3;flex:1 0 100%;padding:2px 0 4px}
+ .top .streak{margin-left:auto}
+ .top .tools{margin-left:auto}
+}
+@media(max-width:560px){
+ body{font-size:17px}
+ .top{padding:10px 14px}
+ .top .tools{width:100%;justify-content:flex-start}
+ .top .tools .mini{font-size:.82rem;padding:4px 9px}
+ .top-nav a{padding:8px 11px}
+ h1{margin-top:38px}
+ .card{padding:22px}
+ .poster{flex-basis:168px;height:238px}
+ .poster.sm{flex-basis:132px;height:184px}
+ .poster.wc{flex-basis:230px}
+ .fc{height:320px}
+}
+
+/* Optional light-green theme. Cinema and Midnight remain unchanged. */
+html[data-theme=sage]{--bg:#f3f8f1;--card:#fbfdf9;--ink:#24372b;--mute:#647667;--line:#d8e5d5;--accent:#668b68;--on:#fff;--soft:#e7f0e4;--warm:#9a8750;--ok:#5b8961;--bad:#b96f6b;color-scheme:light}
+html[data-theme=sage] .card{box-shadow:0 8px 28px rgba(49,79,52,.055)}
+html[data-theme=sage] .hero{background:radial-gradient(ellipse at 80% 0%,rgba(125,166,124,.12),transparent 60%),var(--bg)}
+html[data-theme=sage] .poster{filter:saturate(.58)}
+html[data-theme=sage] .poster:hover{filter:saturate(.76)}
