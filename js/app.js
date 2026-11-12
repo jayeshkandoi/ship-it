@@ -221,6 +221,7 @@ ks.forEach(k=>{const x=a[k],y=b[k];
 if(k==="__best")o[k]=Math.max(x||0,y||0);
 else if(k==="__last"||k==="__streak"){if(pk[k]!==undefined)o[k]=pk[k]}
 else if(k==="__badges"||k==="__friends")o[k]=Object.assign({},y,x);
+else if(k==="__mcqAttempts"){const z=new Map();[...(Array.isArray(x)?x:[]),...(Array.isArray(y)?y:[])].forEach(v=>{if(!v||!v.id)return;const old=z.get(v.id);if(!old||(v.at||0)>=(old.at||0))z.set(v.id,v)});o[k]=[...z.values()]};
 else if(k==="__wk"){if(!x)o[k]=y;else if(!y)o[k]=x;else if(x.m>y.m)o[k]=x;else if(y.m>x.m)o[k]=y;else o[k]={m:x.m,k:Object.assign({},y.k,x.k)}}
 else if(k==="__id"||k==="__name")o[k]=y!==undefined?y:x;
 else if(typeof x==="boolean"&&typeof y==="boolean")o[k]=x||y;
