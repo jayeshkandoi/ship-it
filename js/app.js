@@ -79,8 +79,27 @@ p.innerHTML=`<b>Choose a look</b><div class="swg">${THEMES.map(t=>`<button class
 p.onclick=e=>{const b=e.target.closest("[data-th]");if(!b)return;this.set(b.dataset.th);p.querySelectorAll("[data-th]").forEach(x=>x.setAttribute("aria-pressed",x===b))};
 document.body.appendChild(p);this.pop=p;setTimeout(()=>{this.out=e=>{if(!p.contains(e.target)&&e.target.id!=="thbtn")this.close()};document.addEventListener("click",this.out)},0)},
 close(){if(this.pop){this.pop.remove();this.pop=null;document.removeEventListener("click",this.out)}},
-set(id){document.documentElement.dataset.theme=id;try{localStorage.setItem("shipit-theme",id)}catch(e){}}};
+set(id){document.documentElement.dataset.theme=id;try{localStorage.setItem("shipit-theme",id)}catch(e){}if(typeof window!=="undefined")window.dispatchEvent(new Event("shipit-theme-change"))}};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")Theme.close()});
+
+// Emerald-only parallax ambience. Lightweight, scroll-driven and disabled for reduced-motion users.
+(function(){
+ const root=document.documentElement;
+ let ticking=false;
+ function update(){
+  ticking=false;
+  if(root.dataset.theme!=="genesis"||window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+   document.body.style.removeProperty("--emerald-scroll");return;
+  }
+  document.body.style.setProperty("--emerald-scroll",Math.min(window.scrollY,1800)+"px");
+ }
+ function requestUpdate(){if(!ticking){ticking=true;requestAnimationFrame(update)}}
+ window.addEventListener("scroll",requestUpdate,{passive:true});
+ window.addEventListener("resize",requestUpdate,{passive:true});
+ window.addEventListener("shipit-theme-change",requestUpdate);
+ update();
+})();
+
 function paintStreak(){const s=Store.streak(),e=document.getElementById("streak");if(e)e.textContent=s?s+"-day streak":"Start a streak today";Rewards.pill()}
 /* Lofi music: generated live with Web Audio. No audio files, so nothing to download or license. */
 const Lofi={
