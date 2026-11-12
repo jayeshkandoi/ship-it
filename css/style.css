@@ -278,3 +278,15 @@ html[data-theme=sage] .poster:hover{filter:saturate(.76)}
 .hero-card.byte{--hc:#45a5ff}.hero-card.shadow{--hc:#b18aff}.hero-card.web{--hc:#ff536c}.hero-card.data{--hc:#4be0a1}.hero-card.build{--hc:#ffad45}.hero-card.career{--hc:#ffe17a}
 @media(max-width:850px){.hero-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.hero-grid{grid-template-columns:1fr}.hero-card{min-height:260px}.hero-art{height:145px}}
+
+/* Original comic-style hero portraits */
+.hero-art{height:210px;background:radial-gradient(ellipse at 50% 70%,color-mix(in srgb,var(--hc) 25%,transparent),transparent 68%)}
+.hero-figure{height:100%;width:min(100%,245px);overflow:visible;filter:drop-shadow(0 8px 12px rgba(0,0,0,.5))}
+.hero-figure .cape{fill:color-mix(in srgb,var(--hc) 38%,#10131d);stroke:var(--hc);stroke-width:3}
+.hero-figure .suit{fill:#17202c;stroke:var(--hc);stroke-width:4;stroke-linejoin:round}
+.hero-figure .skin{fill:#d99b78;stroke:#241b22;stroke-width:3}
+.hero-figure .hair{fill:#17131b;stroke:#08090d;stroke-width:3;stroke-linejoin:round}
+.hero-figure .visor{fill:var(--hc);stroke:#f7f7f7;stroke-width:2;opacity:.9}
+.hero-figure .accent{fill:var(--hc);stroke:#fff;stroke-width:2;stroke-linejoin:round;filter:drop-shadow(0 0 7px var(--hc))}
+.hero-figure .suitline{fill:none;stroke:var(--hc);stroke-width:3;opacity:.8}
+@media(max-width:520px){.hero-art{height:185px}}
