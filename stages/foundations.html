@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Stage 1: Foundations | Ship It</title>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
-<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{var t=localStorage.getItem("shipit-theme");if(!["cinema","midnight","sage"].includes(t))t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-<header class="top"><a href="../index.html">← Roadmap</a><span class="streak" id="streak"></span></header>
+<header class="top"><a href="../index.html">Ship It</a><nav class="top-nav" aria-label="Main navigation">
+<a href="../index.html">Home</a><a href="../index.html#pathh">Roadmap</a><a href="../index.html#trackerh">Practice</a><a href="../index.html#projs">Projects</a><a href="flashcards.html">Flashcards</a><a href="cheatsheets.html">Cheat sheets</a>
+</nav><span class="streak" id="streak"></span></header>
 <main class="wrap">
 <h1>Foundations</h1>
 <p class="sub">Five topics, one at a time. You already know the languages, so this stage is about the tools every developer uses daily.</p>
