@@ -37,6 +37,7 @@
 .quiz-review small{color:var(--mute)}
 .quiz-pill{display:inline-block;padding:5px 10px;border-radius:99px;background:var(--soft);color:var(--accent);font-size:.8rem;font-weight:700}
 @media(max-width:620px){.quiz-grid{grid-template-columns:1fr}.quiz-wrap{padding:0 16px 80px}.quiz-hero{padding-top:30px}.quiz-card{border-radius:16px}}
+ .attempt-tabs{display:flex;gap:8px;flex-wrap:wrap}.attempt-tabs button{font:inherit;padding:9px 13px;border-radius:10px;border:1px solid var(--line);cursor:pointer}
 </style>
 </head>
 <body>
@@ -50,8 +51,13 @@
 <div class="quiz-field"><label for="stage">Learning stage</label><select id="stage"></select></div>
 <div class="quiz-field"><label for="topic">Topic</label><select id="topic"></select></div>
 <div class="quiz-field"><label for="difficulty">Difficulty</label><select id="difficulty"><option value="all">All levels</option><option value="Easy">Easy</option><option value="Medium">Medium</option><option value="Hard">Hard</option></select></div>
-<div class="quiz-field"><label for="count">Number of questions</label><select id="count"><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="15">15 questions</option><option value="all">All available</option></select></div>
+<div class="quiz-field"><label for="count">Number of questions</label><select id="count"><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="15">15 questions</option><option value="25">25 questions</option><option value="50">50 questions</option><option value="100">100 questions</option><option value="all">All available</option></select></div>
 </div>
+<section class="quiz-card" id="attempted">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+<div><h2 style="margin:0 0 5px">Attempted questions</h2><p class="note" style="margin:0">Your answers are saved in this browser so you can revisit them.</p></div>
+<div class="attempt-tabs"><button type="button" class="btn" id="showCorrect">Correct <b id="correctCount">0</b></button><button type="button" class="ghost" id="showIncorrect">Incorrect <b id="incorrectCount">0</b></button></div>
+</div><div id="attemptedList" style="margin-top:18px"></div></section>
 <div class="quiz-actions"><span class="note" id="available" style="align-self:center;margin:0">Choose a topic to see available questions.</span><button class="btn" id="start">Start practice →</button></div>
 </section>
 <section class="quiz-card quiz-hidden" id="play">
@@ -70,6 +76,7 @@
 </main>
 <script src="../js/app.js"></script>
 <script src="../js/mcq-extra.js"></script>
+<script src="../js/mcq-batch-2.js"></script>
 <script>
 const BANK=[
 ["Foundations","Programming basics","Easy","Which keyword declares a block-scoped variable that cannot be reassigned in JavaScript?",["var","let","const","static"],2,"const creates a block-scoped binding that cannot be reassigned. The object it points to may still be mutable."],
@@ -105,7 +112,7 @@ const BANK=[
 ["Job Readiness","Coding interviews","Medium","What should you do before optimizing an interview solution?",["Start coding immediately","Clarify inputs, constraints and edge cases","Assume the examples are exhaustive","Avoid discussing complexity"],1,"Clarifying the contract prevents solving the wrong problem and surfaces important edge cases."],
 ["Job Readiness","System design","Hard","What does p95 latency represent?",["Average latency","The slowest request","95% of requests complete at or below this latency","The number of requests per second"],2,"The 95th percentile is a tail-latency measure: 95% of observations are no slower than this value."]
 ];
-BANK.push(...EXTRA_BANK);
+BANK.push(...EXTRA_BANK,...MCQ_BATCH_2);
 const STAGES=[...new Set(BANK.map(q=>q[0]))];
 const $=id=>document.getElementById(id);
 let questions=[],at=0,score=0,answered=false,history=[],wrong=[];
@@ -116,7 +123,7 @@ function filtered(){return BANK.filter(q=>($("stage").value==="all"||q[0]===$("s
 function updateAvailable(){$("available").textContent=filtered().length+" questions available for this selection."}
 function start(pool){const source=pool||filtered();if(!source.length){alert("No questions match these filters. Try another difficulty or topic.");return}const n=$("count").value;questions=shuffle(source).slice(0,n==="all"?source.length:Math.min(+n,source.length));at=0;score=0;history=[];wrong=[];$("setup").classList.add("quiz-hidden");$("results").classList.add("quiz-hidden");$("play").classList.remove("quiz-hidden");render();window.scrollTo({top:0,behavior:"smooth"})}
 function render(){const q=questions[at];answered=false;$("qcount").textContent="Question "+(at+1)+" of "+questions.length;$("qtag").textContent=q[2]+" · "+q[1];$("score-live").textContent=score+" correct";$("progress").style.width=(at/questions.length*100)+"%";$("question").textContent=q[3];$("feedback").classList.add("quiz-hidden");$("next").disabled=true;$("next").textContent=at===questions.length-1?"See results →":"Next question →";$("options").innerHTML=q[4].map((o,i)=>'<button class="quiz-option" data-choice="'+i+'"><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+o.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</span></button>').join("")}
-function choose(i){if(answered)return;answered=true;const q=questions[at],ok=i===q[5];if(ok)score++;else wrong.push(q);history.push({q,chosen:i,ok});document.querySelectorAll(".quiz-option").forEach((b,j)=>{b.disabled=true;if(j===q[5])b.classList.add("correct");if(j===i&&!ok)b.classList.add("wrong")});$("feedback").classList.remove("quiz-hidden");$("feedback").innerHTML='<b>'+(ok?"Correct!":"Not quite.")+'</b> '+q[6]+'<div style="margin-top:8px;font-size:.88rem;color:var(--mute)">Correct answer: '+String.fromCharCode(65+q[5])+'. '+q[4][q[5]].replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div>';$("score-live").textContent=score+" correct";$("next").disabled=false}
+function choose(i){if(answered)return;answered=true;const q=questions[at],ok=i===q[5];if(ok)score++;else wrong.push(q);history.push({q,chosen:i,ok});saveAttempt(q,i,ok);document.querySelectorAll(".quiz-option").forEach((b,j)=>{b.disabled=true;if(j===q[5])b.classList.add("correct");if(j===i&&!ok)b.classList.add("wrong")});$("feedback").classList.remove("quiz-hidden");$("feedback").innerHTML='<b>'+(ok?"Correct!":"Not quite.")+'</b> '+q[6]+'<div style="margin-top:8px;font-size:.88rem;color:var(--mute)">Correct answer: '+String.fromCharCode(65+q[5])+'. '+q[4][q[5]].replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div>';$("score-live").textContent=score+" correct";$("next").disabled=false}
 function finish(){$("play").classList.add("quiz-hidden");$("results").classList.remove("quiz-hidden");const pct=Math.round(score/questions.length*100);$("final-score").textContent=score+"/"+questions.length;$("result-title").textContent=pct>=80?"Excellent work!":pct>=60?"Good progress. Keep going.":"Good effort. Review and try again.";$("result-copy").textContent=pct+"% correct · "+(questions.length-score)+" to review. Read the explanations below to lock in the concepts.";$("retry-wrong").classList.toggle("quiz-hidden",!wrong.length);$("review").innerHTML=history.map((h,i)=>'<div class="quiz-review"><small>Question '+(i+1)+' · '+h.q[1]+' · '+(h.ok?"Correct":"Incorrect")+'</small><p><b>'+h.q[3].replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</b></p><p>Your answer: '+(h.chosen<0?"Not answered":h.q[4][h.chosen])+'<br>Correct: '+h.q[4][h.q[5]]+'</p><p class="sub">'+h.q[6]+'</p></div>').join("");window.scrollTo({top:0,behavior:"smooth"})}
 $("stage").addEventListener("change",fillTopics);$("topic").addEventListener("change",updateAvailable);$("difficulty").addEventListener("change",updateAvailable);
 $("start").addEventListener("click",()=>start());$("options").addEventListener("click",e=>{const b=e.target.closest("[data-choice]");if(b)choose(+b.dataset.choice)});
@@ -124,6 +131,29 @@ $("next").addEventListener("click",()=>{if(!answered)return;if(at<questions.leng
 $("quit").addEventListener("click",()=>{if(confirm("End this practice session? Your answers so far will not be scored.")){$("play").classList.add("quiz-hidden");$("setup").classList.remove("quiz-hidden")}});
 $("new-quiz").addEventListener("click",()=>{$("results").classList.add("quiz-hidden");$("setup").classList.remove("quiz-hidden");window.scrollTo({top:0,behavior:"smooth"})});
 $("retry-wrong").addEventListener("click",()=>start(wrong));
+
+const ATTEMPT_KEY="shipit-mcq-attempts-v1";
+let attemptMode="correct";
+function readAttempts(){try{return JSON.parse(localStorage.getItem(ATTEMPT_KEY)||"[]")}catch(e){return []}}
+function saveAttempt(q,chosen,ok){
+ const all=readAttempts(),id=q[0]+"|"+q[1]+"|"+q[3];
+ const entry={id,stage:q[0],topic:q[1],difficulty:q[2],question:q[3],options:q[4],answer:q[5],explanation:q[6],chosen,ok,at:Date.now()};
+ const index=all.findIndex(x=>x.id===id);if(index>=0)all[index]=entry;else all.push(entry);
+ try{localStorage.setItem(ATTEMPT_KEY,JSON.stringify(all))}catch(e){}
+ renderAttempts();
+}
+function renderAttempts(){
+ const all=readAttempts(),correct=all.filter(x=>x.ok),incorrect=all.filter(x=>!x.ok);
+ $("correctCount").textContent=correct.length;$("incorrectCount").textContent=incorrect.length;
+ const list=attemptMode==="correct"?correct:incorrect;
+ $("showCorrect").className=attemptMode==="correct"?"btn":"ghost";$("showIncorrect").className=attemptMode==="incorrect"?"btn":"ghost";
+ $("attemptedList").innerHTML=list.length?list.slice().reverse().map((x,i)=>'<article class="quiz-review"><small>'+x.stage+' · '+x.topic+' · '+x.difficulty+'</small><p><b>'+escapeAttempt(x.question)+'</b></p><p>Your answer: '+escapeAttempt(x.options[x.chosen])+'<br>Correct answer: '+escapeAttempt(x.options[x.answer])+'</p><p class="sub">'+escapeAttempt(x.explanation)+'</p></article>').join(""):'<p class="note">No '+attemptMode+' attempts yet. Complete some practice questions to see them here.</p>';
+}
+function escapeAttempt(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+$("showCorrect").addEventListener("click",()=>{attemptMode="correct";renderAttempts()});
+$("showIncorrect").addEventListener("click",()=>{attemptMode="incorrect";renderAttempts()});
+renderAttempts();
+
 fillStages();
 </script>
 </body></html>
