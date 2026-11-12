@@ -144,10 +144,34 @@ close(){if(this.pop){this.pop.remove();this.pop=null;document.removeEventListene
 Lofi.load();
 document.addEventListener("keydown",e=>{if(e.key==="Escape")Lofi.close()});
 window.addEventListener("pagehide",()=>{clearInterval(Lofi.iv);if(Lofi.ctx)try{Lofi.ctx.close()}catch(e){}});
-(function(){const top=document.querySelector(".top");if(!top)return;const t=document.createElement("span");t.className="tools";
-t.innerHTML=`<a class="mini" href="${location.pathname.indexOf("/stages/")>-1?"":"stages/"}squad.html">Squad</a><button class="mini" id="mubtn" aria-haspopup="true" aria-pressed="false">♪ Music</button><button class="mini" id="xpbtn" aria-haspopup="dialog"></button><button class="mini" id="thbtn" aria-haspopup="true">Theme</button><button class="mini" id="acbtn" aria-haspopup="dialog">Sign in</button>`;top.appendChild(t);
-t.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="xpbtn")Rewards.open();else if(b.id==="acbtn")Account.open();else if(b.id==="mubtn")Lofi.toggle();else Theme.toggle()});Rewards.pill();Lofi.ui();Lofi.arm()})();
-function mountTimer(el){let tot=900,left=900,t=null;
+(function(){
+const top=document.querySelector(".top");if(!top)return;
+const script=document.querySelector('script[src$="js/app.js"]');
+const root=new URL("../",new URL(script.getAttribute("src"),location.href));
+const url=p=>new URL(p,root).href;
+const links=[["Home","index.html#hero"],["Heroes","index.html#heroes"],["Roadmap","index.html#pathh"],["Practice","practice.html"],["Projects","index.html#projs"],["MCQ Practice","stages/mcq.html"],["Flashcards","stages/flashcards.html"],["Cheat sheets","stages/cheatsheets.html"]];
+top.innerHTML='<button class="nav-icon" id="menuBtn" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><a class="top-brand" href="'+url("index.html")+'">Ship It</a><span class="nav-spacer"></span><span class="streak" id="streak"></span><button class="nav-icon account-trigger" id="accountMenuBtn" type="button" aria-label="Open account menu" aria-expanded="false"><span class="account-glyph">♙</span></button>';
+const drawer=document.createElement("aside");drawer.className="site-drawer";drawer.id="siteDrawer";drawer.setAttribute("aria-label","Main navigation");
+drawer.innerHTML='<div class="drawer-head"><b>Explore Ship It</b><button type="button" class="drawer-close" aria-label="Close navigation">×</button></div><nav>'+links.map(x=>'<a href="'+url(x[1])+'">'+x[0]+'<span>↗</span></a>').join("")+'</nav><p class="drawer-foot">Learn · Practise · Build · Ship</p>';
+const shade=document.createElement("button");shade.className="drawer-shade";shade.type="button";shade.setAttribute("aria-label","Close navigation");
+const account=document.createElement("div");account.className="account-menu";account.id="accountMenu";account.setAttribute("aria-label","Account menu");
+account.innerHTML='<div class="account-menu-head"><span class="account-avatar">♙</span><span><b>Your space</b><small>Progress and preferences</small></span></div><a href="'+url("stages/squad.html")+'"><span>♧</span> Squad</a><button type="button" id="menuMusic"><span>♫</span> Music</button><button type="button" id="menuXp"><span>✦</span> Level & XP <b id="menuLevel">Level 1</b></button><button type="button" id="menuTheme"><span>◐</span> Theme <b id="menuThemeName">Emerald</b></button><button type="button" id="menuAccount"><span>♙</span> Account</button>';
+document.body.append(drawer,shade,account);
+const menuBtn=top.querySelector("#menuBtn"),accountBtn=top.querySelector("#accountMenuBtn");
+function closeDrawer(){drawer.classList.remove("open");shade.classList.remove("show");menuBtn.setAttribute("aria-expanded","false")}
+function closeAccount(){account.classList.remove("open");accountBtn.setAttribute("aria-expanded","false")}
+menuBtn.addEventListener("click",()=>{closeAccount();drawer.classList.toggle("open");shade.classList.toggle("show",drawer.classList.contains("open"));menuBtn.setAttribute("aria-expanded",drawer.classList.contains("open")?"true":"false")});
+shade.addEventListener("click",closeDrawer);drawer.querySelector(".drawer-close").addEventListener("click",closeDrawer);drawer.addEventListener("click",e=>{if(e.target.closest("a"))closeDrawer()});
+accountBtn.addEventListener("click",()=>{closeDrawer();account.classList.toggle("open");accountBtn.setAttribute("aria-expanded",account.classList.contains("open")?"true":"false")});
+document.addEventListener("click",e=>{if(!account.contains(e.target)&&!accountBtn.contains(e.target))closeAccount()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeDrawer();closeAccount()}});
+account.querySelector("#menuMusic").addEventListener("click",()=>{closeAccount();Lofi.toggle()});account.querySelector("#menuXp").addEventListener("click",()=>{closeAccount();Rewards.open()});account.querySelector("#menuTheme").addEventListener("click",()=>{closeAccount();Theme.toggle()});account.querySelector("#menuAccount").addEventListener("click",()=>{closeAccount();Account.open()});
+const t=document.createElement("span");t.className="tools";t.innerHTML='<button class="mini" id="mubtn" hidden>♪ Music</button><button class="mini" id="xpbtn" hidden></button><button class="mini" id="thbtn" hidden>Theme</button><button class="mini" id="acbtn" hidden>Account</button>';top.appendChild(t);
+t.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="xpbtn")Rewards.open();else if(b.id==="acbtn")Account.open();else if(b.id==="mubtn")Lofi.toggle();else Theme.toggle()});
+Rewards.pill();Lofi.ui();Lofi.arm();
+const refresh=()=>{const l=document.getElementById("menuLevel"),n=document.getElementById("menuThemeName");if(l){const s=Rewards.snap();l.textContent="Lv "+s.lv+" · "+s.xp+" XP"}if(n)n.textContent=({genesis:"Emerald",pulse:"PulseBridge",cinema:"Cinema",midnight:"Midnight"})[document.documentElement.dataset.theme]||"Theme"};
+account.querySelector("#menuTheme").addEventListener("click",()=>setTimeout(refresh,80));
+})();function mountTimer(el){let tot=900,left=900,t=null;
 el.innerHTML=`<div class="card timer"><div class="t-top"><b>Focus timer</b><span class="chips" style="margin:0">${[10,15,25].map(m=>`<button class="chip" data-m="${m}" aria-pressed="${m==15}">${m} min</button>`).join("")}</span></div><div class="t-time" id="tt">15:00</div><div class="bar"><i id="tb"></i></div><button class="btn" id="ts">Start</button><p class="note" id="tn" style="margin-top:12px">One small thing. Phone away, one tab open.</p></div>`;
 const tt=el.querySelector("#tt"),tb=el.querySelector("#tb"),ts=el.querySelector("#ts"),tn=el.querySelector("#tn");
 function draw(){tt.textContent=String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");tb.style.width=((tot-left)/tot*100)+"%"}
