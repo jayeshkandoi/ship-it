@@ -4,12 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Flashcards | Ship It</title>
-<script>try{var t=localStorage.getItem("shipit-theme");if(t!=="midnight")t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{var t=localStorage.getItem("shipit-theme");if(!["cinema","midnight","sage"].includes(t))t="cinema";document.documentElement.dataset.theme=t}catch(e){}</script>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-<header class="top"><a href="../index.html">← Home</a><span class="streak" id="streak"></span></header>
+<header class="top"><a href="../index.html">Ship It</a><nav class="top-nav" aria-label="Main navigation">
+<a href="../index.html">Home</a><a href="../index.html#pathh">Roadmap</a><a href="../index.html#trackerh">Practice</a><a href="../index.html#projs">Projects</a><a href="flashcards.html">Flashcards</a><a href="cheatsheets.html">Cheat sheets</a>
+</nav><span class="streak" id="streak"></span></header>
 <main class="wrap">
 <h1>Flashcards</h1>
 <p class="sub">Read the question, say the answer out loud, then flip. <b>Got it</b> moves a card up one level. Three levels means mastered. <b>Again</b> sends it back to level 0.</p>
