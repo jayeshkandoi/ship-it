@@ -211,4 +211,30 @@ renderAttempts();
 
 fillStages();
 </script>
+<script>
+// Defensive dropdown initialization: keep stage/topic filters available even if an earlier setup step fails.
+(function(){
+ const stageEl=document.getElementById("stage"),topicEl=document.getElementById("topic");
+ const difficultyEl=document.getElementById("difficulty"),availableEl=document.getElementById("available");
+ if(!stageEl||!topicEl||!Array.isArray(BANK))return;
+ const stages=[...new Set(BANK.map(q=>q[0]).filter(Boolean))];
+ function fillTopicOptions(){
+  const stage=stageEl.value;
+  const topics=[...new Set(BANK.filter(q=>stage==="all"||q[0]===stage).map(q=>q[1]).filter(Boolean))];
+  const previous=topicEl.value;
+  topicEl.innerHTML='<option value="all">All topics</option>'+topics.map(t=>'<option value="'+String(t).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'">'+String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</option>').join("");
+  if(topics.includes(previous))topicEl.value=previous;
+  updateCount();
+ }
+ function updateCount(){
+  const count=BANK.filter(q=>(stageEl.value==="all"||q[0]===stageEl.value)&&(topicEl.value==="all"||q[1]===topicEl.value)&&(!difficultyEl||difficultyEl.value==="all"||q[2]===difficultyEl.value)).length;
+  if(availableEl)availableEl.textContent=count+" questions available for this selection.";
+ }
+ stageEl.innerHTML='<option value="all">All stages</option>'+stages.map(v=>'<option value="'+String(v).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'">'+String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</option>').join("");
+ stageEl.addEventListener("change",fillTopicOptions);
+ topicEl.addEventListener("change",updateCount);
+ if(difficultyEl)difficultyEl.addEventListener("change",updateCount);
+ fillTopicOptions();
+})();
+</script>
 </body></html>
