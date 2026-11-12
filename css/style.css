@@ -297,6 +297,29 @@ html[data-theme=genesis]{
  --bg:#030807;--card:#081713;--ink:#e9fff7;--mute:#9ab8ad;--line:rgba(105,224,181,.18);
  --accent:#00d99a;--on:#03100b;--soft:#0d2920;--warm:#a8f5d5;--ok:#4be3a4;--bad:#ff7c85;color-scheme:dark;
 }
+html[data-theme=genesis] body{isolation:isolate;overflow-x:clip}
+html[data-theme=genesis] body:before{
+ content:"";position:fixed;inset:-12vh -8vw;z-index:-1;pointer-events:none;
+ background:
+  radial-gradient(ellipse at 16% 24%,rgba(0,217,154,.13),transparent 28%),
+  radial-gradient(ellipse at 84% 42%,rgba(0,150,112,.12),transparent 30%),
+  radial-gradient(ellipse at 52% 88%,rgba(0,217,154,.09),transparent 32%),
+  linear-gradient(rgba(105,224,181,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(105,224,181,.035) 1px,transparent 1px);
+ background-size:auto,auto,auto,54px 54px,54px 54px;
+ transform:translate3d(0,calc(var(--emerald-scroll,0px)*-.12),0);
+ will-change:transform;
+}
+html[data-theme=genesis] .hero:before{
+ transform:translate3d(-50%,calc(var(--emerald-scroll,0px)*-.22),0);
+}
+html[data-theme=genesis] .hero:after{
+ content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;opacity:.42;
+ background:radial-gradient(ellipse at 50% 20%,transparent 20%,rgba(0,0,0,.24) 100%);
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-theme=genesis] body:before,html[data-theme=genesis] .hero:before{transform:none!important;will-change:auto}
+}
 html[data-theme=genesis] body{
  background:radial-gradient(ellipse at 50% -18%,rgba(0,217,154,.19),transparent 48%),var(--bg);
 }
