@@ -290,3 +290,81 @@ html[data-theme=sage] .poster:hover{filter:saturate(.76)}
 .hero-figure .accent{fill:var(--hc);stroke:#fff;stroke-width:2;stroke-linejoin:round;filter:drop-shadow(0 0 7px var(--hc))}
 .hero-figure .suitline{fill:none;stroke:var(--hc);stroke-width:3;opacity:.8}
 @media(max-width:520px){.hero-art{height:185px}}
+
+
+/* Optional Genesis-inspired emerald theme. Existing Cinema, Midnight and Sage themes remain untouched. */
+html[data-theme=genesis]{
+ --bg:#030807;--card:#081713;--ink:#e9fff7;--mute:#9ab8ad;--line:rgba(105,224,181,.18);
+ --accent:#00d99a;--on:#03100b;--soft:#0d2920;--warm:#a8f5d5;--ok:#4be3a4;--bad:#ff7c85;color-scheme:dark;
+}
+html[data-theme=genesis] body{
+ background:radial-gradient(ellipse at 50% -18%,rgba(0,217,154,.19),transparent 48%),var(--bg);
+}
+html[data-theme=genesis] .top{
+ background:rgba(3,12,9,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+ border-bottom:1px solid rgba(0,217,154,.2);box-shadow:0 8px 32px rgba(0,0,0,.22);
+}
+html[data-theme=genesis] .top b{color:#d9fff0;letter-spacing:.04em}
+html[data-theme=genesis] .top-nav a{border-radius:999px}
+html[data-theme=genesis] .top-nav a[aria-current=page],
+html[data-theme=genesis] .top-nav a:hover{background:rgba(0,217,154,.1);border-color:rgba(0,217,154,.25);color:#baffdf}
+html[data-theme=genesis] .mini,
+html[data-theme=genesis] .chip,
+html[data-theme=genesis] .ghost,
+html[data-theme=genesis] .btn{
+ border-radius:999px;border-color:rgba(0,217,154,.32);transition:transform .2s,box-shadow .2s,background .2s;
+}
+html[data-theme=genesis] .btn{
+ background:linear-gradient(110deg,#baffdf,#00d99a);color:#03100b;border:0;
+ box-shadow:0 0 22px rgba(0,217,154,.25),0 0 48px rgba(0,217,154,.12);
+}
+html[data-theme=genesis] .btn:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(0,217,154,.42)}
+html[data-theme=genesis] .ghost{color:#baffdf;background:rgba(0,217,154,.055)}
+html[data-theme=genesis] .mini{background:rgba(7,28,21,.82);color:var(--ink)}
+html[data-theme=genesis] .hero{
+ text-align:center;min-height:500px;padding:92px 20px 76px;isolation:isolate;
+ background:radial-gradient(ellipse at 50% 0%,rgba(0,217,154,.22),transparent 56%),linear-gradient(180deg,#061710 0%,#030807 76%);
+ border-bottom:1px solid rgba(0,217,154,.16);
+}
+html[data-theme=genesis] .hero:before{
+ content:"";position:absolute;z-index:-1;width:min(72vw,760px);aspect-ratio:1;left:50%;bottom:-68%;
+ transform:translateX(-50%);border-radius:50%;
+ background:radial-gradient(circle,rgba(0,217,154,.2),rgba(0,217,154,.045) 42%,transparent 68%);
+ border:1px solid rgba(0,217,154,.18);box-shadow:0 0 100px rgba(0,217,154,.12),inset 0 0 80px rgba(0,217,154,.08);
+}
+html[data-theme=genesis] .hero .in{max-width:920px}
+html[data-theme=genesis] .hero h1{
+ max-width:100%;font-family:inherit;font-size:clamp(3rem,8vw,6.6rem);font-weight:800;
+ letter-spacing:-.055em;line-height:.98;text-transform:none;
+ text-shadow:0 5px 40px rgba(0,217,154,.12);
+}
+html[data-theme=genesis] .hero .meta{color:#7df3c4;letter-spacing:.18em;font-size:.78rem;font-weight:700}
+html[data-theme=genesis] .hero .lead{margin:14px auto 20px;color:#b3cfc3;max-width:52ch}
+html[data-theme=genesis] .ghost-code{opacity:.045;color:#baffdf}
+html[data-theme=genesis] .wide{position:relative}
+html[data-theme=genesis] .rowh{font-family:inherit;text-transform:none;letter-spacing:-.025em;font-weight:750}
+html[data-theme=genesis] .rowh small{color:#8eafa2}
+html[data-theme=genesis] .card,
+html[data-theme=genesis] details.st,
+html[data-theme=genesis] .tk-panel{
+ background:linear-gradient(145deg,rgba(10,34,25,.94),rgba(5,17,13,.96));
+ border:1px solid rgba(105,224,181,.16);border-radius:18px;
+ box-shadow:0 14px 44px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.025);
+}
+html[data-theme=genesis] .poster{
+ border:1px solid rgba(105,224,181,.22);border-radius:18px;
+ background:linear-gradient(155deg,rgba(0,217,154,.2),#071711 68%);
+ box-shadow:inset 0 1px rgba(255,255,255,.06),0 12px 30px rgba(0,0,0,.2);
+}
+html[data-theme=genesis] .poster:hover{box-shadow:0 0 0 1px rgba(0,217,154,.2),0 18px 44px rgba(0,217,154,.12)}
+html[data-theme=genesis] .bar{background:#10291f}
+html[data-theme=genesis] .bar i,
+html[data-theme=genesis] .poster .pg i{background:linear-gradient(90deg,#00d99a,#a8f5d5)}
+html[data-theme=genesis] .heroes-head h2{font-family:inherit;text-transform:none;letter-spacing:-.03em}
+html[data-theme=genesis] .hero-card{border-radius:20px;box-shadow:0 16px 42px rgba(0,0,0,.32)}
+html[data-theme=genesis] .pop{background:rgba(5,22,16,.97);border-color:rgba(0,217,154,.25);border-radius:16px;backdrop-filter:blur(16px)}
+html[data-theme=genesis] .sw{border-radius:12px;background:#0b2118}
+html[data-theme=genesis] .sw[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 18px rgba(0,217,154,.15)}
+@media(max-width:720px){
+ html[data-theme=genesis] .hero{min-height:430px;padding:64px 18px 58px}
+}
