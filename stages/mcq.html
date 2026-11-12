@@ -35,7 +35,7 @@
 .quiz-review{border-top:1px solid var(--line);padding:18px 0}
 .quiz-review p{line-height:1.7}
 .quiz-review small{color:var(--mute)}
-.quiz-pill{display:inline-block;padding:5px 10px;border-radius:99px;background:var(--soft);color:var(--accent);font-size:.8rem;font-weight:700}
+.quiz-pill{display:inline-block;padding:5px 10px;border-radius:99px;background:var(--soft);color:var(--accent);font-size:.8rem;font-weight:700}.attempted-status{background:rgba(34,197,94,.13);color:#22c55e;border-color:rgba(34,197,94,.35)}.not-attempted-status{background:rgba(148,163,184,.12);color:var(--mute);border-color:var(--line)}
 @media(max-width:620px){.quiz-grid{grid-template-columns:1fr}.quiz-wrap{padding:0 16px 80px}.quiz-hero{padding-top:30px}.quiz-card{border-radius:16px}}
  .attempt-tabs{display:flex;gap:8px;flex-wrap:wrap}.attempt-tabs button{font:inherit;padding:9px 13px;border-radius:10px;border:1px solid var(--line);cursor:pointer}
 .attempt-tabs{display:flex;gap:8px;flex-wrap:wrap}
@@ -65,7 +65,7 @@
 </div><div id="attemptedList" style="margin-top:18px"></div></section>
 </section>
 <section class="quiz-card quiz-hidden" id="play">
-<div class="quiz-meta"><span id="qcount">Question 1</span><span id="qtag" class="quiz-pill">Easy</span><span id="score-live">0 correct</span></div>
+<div class="quiz-meta"><span id="qcount">Question 1</span><span id="qtag" class="quiz-pill">Easy</span><span id="attempt-status" class="quiz-pill">Not attempted</span><span id="score-live">0 correct</span></div>
 <div class="quiz-progress"><i id="progress"></i></div>
 <h2 class="quiz-question" id="question"></h2>
 <div class="quiz-options" id="options"></div>
@@ -129,7 +129,7 @@ function fillTopics(){const stage=$("stage").value;const topics=[...new Set(BANK
 function filtered(){return BANK.filter(q=>($("stage").value==="all"||q[0]===$("stage").value)&&($("topic").value==="all"||q[1]===$("topic").value)&&($("difficulty").value==="all"||q[2]===$("difficulty").value))}
 function updateAvailable(){$("available").textContent=filtered().length+" questions available for this selection."}
 function start(pool){const source=pool||filtered();if(!source.length){alert("No questions match these filters. Try another difficulty or topic.");return}const n=$("count").value;questions=shuffle(source).slice(0,n==="all"?source.length:Math.min(+n,source.length));at=0;score=0;history=[];wrong=[];$("setup").classList.add("quiz-hidden");$("results").classList.add("quiz-hidden");$("play").classList.remove("quiz-hidden");render();window.scrollTo({top:0,behavior:"smooth"})}
-function render(){const q=questions[at];answered=false;$("qcount").textContent="Question "+(at+1)+" of "+questions.length;$("qtag").textContent=q[2]+" · "+q[1];$("score-live").textContent=score+" correct";$("progress").style.width=(at/questions.length*100)+"%";$("question").textContent=q[3];$("feedback").classList.add("quiz-hidden");$("next").disabled=true;$("next").textContent=at===questions.length-1?"See results →":"Next question →";$("options").innerHTML=q[4].map((o,i)=>'<button class="quiz-option" data-choice="'+i+'"><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+o.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</span></button>').join("")}
+function render(){const q=questions[at];answered=false;$("qcount").textContent="Question "+(at+1)+" of "+questions.length;$("qtag").textContent=q[2]+" · "+q[1];const alreadyAttempted=readAttempts().some(x=>x.id===q[0]+"|"+q[1]+"|"+q[3]);$("attempt-status").textContent=alreadyAttempted?"Attempted":"Not attempted";$("attempt-status").classList.toggle("attempted-status",alreadyAttempted);$("attempt-status").classList.toggle("not-attempted-status",!alreadyAttempted);$("score-live").textContent=score+" correct";$("progress").style.width=(at/questions.length*100)+"%";$("question").textContent=q[3];$("feedback").classList.add("quiz-hidden");$("next").disabled=true;$("next").textContent=at===questions.length-1?"See results →":"Next question →";$("options").innerHTML=q[4].map((o,i)=>'<button class="quiz-option" data-choice="'+i+'"><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+o.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</span></button>').join("")}
 const TOPIC_LESSONS={
 "Programming basics":"Review variables, scope, functions, control flow and values. Trace a small example and predict its output.",
 "Git workflows":"Review commits, branches, merging, rebasing and conflict resolution. Practise in a disposable repository.",
