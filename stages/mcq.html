@@ -38,6 +38,8 @@
 .quiz-pill{display:inline-block;padding:5px 10px;border-radius:99px;background:var(--soft);color:var(--accent);font-size:.8rem;font-weight:700}
 @media(max-width:620px){.quiz-grid{grid-template-columns:1fr}.quiz-wrap{padding:0 16px 80px}.quiz-hero{padding-top:30px}.quiz-card{border-radius:16px}}
  .attempt-tabs{display:flex;gap:8px;flex-wrap:wrap}.attempt-tabs button{font:inherit;padding:9px 13px;border-radius:10px;border:1px solid var(--line);cursor:pointer}
+.attempt-tabs{display:flex;gap:8px;flex-wrap:wrap}
+
 .topic-lesson{margin-top:16px;padding:16px 18px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--card)}.topic-lesson-label{font-weight:800;color:var(--accent);margin-bottom:7px}.topic-lesson p{margin:0 0 8px;line-height:1.7}.topic-lesson small{color:var(--mute);line-height:1.5}.topic-study-link{display:inline-flex;margin:8px 0;padding:9px 13px;border:1px solid var(--accent);border-radius:9px;color:var(--accent);font-weight:750;text-decoration:none}.topic-study-link:hover{background:var(--soft)}
 .topic-lesson{margin-top:16px;padding:16px 18px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--card)}.topic-lesson-label{font-weight:800;color:var(--accent);margin-bottom:7px}.topic-lesson p{margin:0 0 8px;line-height:1.7}.topic-lesson small{color:var(--mute);line-height:1.5}
 </style>
@@ -59,7 +61,7 @@
 <section class="quiz-card" id="attempted">
 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
 <div><h2 style="margin:0 0 5px">Attempted questions</h2><p class="note" style="margin:0">Your answers are saved in this browser so you can revisit them.</p></div>
-<div class="attempt-tabs"><button type="button" class="btn" id="showCorrect">Correct <b id="correctCount">0</b></button><button type="button" class="ghost" id="showIncorrect">Incorrect <b id="incorrectCount">0</b></button></div>
+<div class="attempt-tabs"><button type="button" class="btn" id="showCorrect">Correct <b id="correctCount">0</b></button><button type="button" class="ghost" id="showIncorrect">Incorrect <b id="incorrectCount">0</b></button><button type="button" class="ghost" id="showUnattempted">Not attempted <b id="unattemptedCount">0</b></button></div>
 </div><div id="attemptedList" style="margin-top:18px"></div></section>
 </section>
 <section class="quiz-card quiz-hidden" id="play">
@@ -199,24 +201,42 @@ $("retry-wrong").addEventListener("click",()=>start(wrong));
 
 const ATTEMPT_KEY="shipit-mcq-attempts-v1";
 let attemptMode="correct";
-function readAttempts(){try{return JSON.parse(localStorage.getItem(ATTEMPT_KEY)||"[]")}catch(e){return []}}
+function readAttempts(){
+ try{
+  if(window.Store&&Store.d){
+   if(!Array.isArray(Store.d.__mcqAttempts)){
+    const legacy=JSON.parse(localStorage.getItem(ATTEMPT_KEY)||"[]");
+    if(legacy.length){Store.d.__mcqAttempts=legacy;Store.save()}
+    else Store.d.__mcqAttempts=[];
+   }
+   return Store.d.__mcqAttempts;
+  }
+  return JSON.parse(localStorage.getItem(ATTEMPT_KEY)||"[]");
+ }catch(e){return []}
+}
+function writeAttempts(all){
+ if(window.Store&&Store.d){Store.d.__mcqAttempts=all;Store.save()}
+ try{localStorage.setItem(ATTEMPT_KEY,JSON.stringify(all))}catch(e){}
+}
 function saveAttempt(q,chosen,ok){
  const all=readAttempts(),id=q[0]+"|"+q[1]+"|"+q[3];
  const entry={id,stage:q[0],topic:q[1],difficulty:q[2],question:q[3],options:q[4],answer:q[5],explanation:q[6],chosen,ok,at:Date.now()};
  const index=all.findIndex(x=>x.id===id);if(index>=0)all[index]=entry;else all.push(entry);
- try{localStorage.setItem(ATTEMPT_KEY,JSON.stringify(all))}catch(e){}
- renderAttempts();
+ writeAttempts(all);renderAttempts();
 }
 function renderAttempts(){
  const all=readAttempts(),correct=all.filter(x=>x.ok),incorrect=all.filter(x=>!x.ok);
- $("correctCount").textContent=correct.length;$("incorrectCount").textContent=incorrect.length;
- const list=attemptMode==="correct"?correct:incorrect;
- $("showCorrect").className=attemptMode==="correct"?"btn":"ghost";$("showIncorrect").className=attemptMode==="incorrect"?"btn":"ghost";
- $("attemptedList").innerHTML=list.length?list.slice().reverse().map((x,i)=>'<article class="quiz-review"><small>'+x.stage+' · '+x.topic+' · '+x.difficulty+'</small><p><b>'+escapeAttempt(x.question)+'</b></p><p>Your answer: '+escapeAttempt(x.options[x.chosen])+'<br>Correct answer: '+escapeAttempt(x.options[x.answer])+'</p><p class="sub">'+escapeAttempt(x.explanation)+'</p></article>').join(""):'<p class="note">No '+attemptMode+' attempts yet. Complete some practice questions to see them here.</p>';
+ const attemptedIds=new Set(all.map(x=>x.id));
+ const notAttempted=BANK.filter(q=>!attemptedIds.has(q[0]+"|"+q[1]+"|"+q[3]));
+ $("correctCount").textContent=correct.length;$("incorrectCount").textContent=incorrect.length;$("unattemptedCount").textContent=notAttempted.length;
+ const list=attemptMode==="correct"?correct:attemptMode==="incorrect"?incorrect:notAttempted;
+ $("showCorrect").className=attemptMode==="correct"?"btn":"ghost";$("showIncorrect").className=attemptMode==="incorrect"?"btn":"ghost";$("showUnattempted").className=attemptMode==="unattempted"?"btn":"ghost";
+ $("attemptedList").innerHTML=list.length?list.slice().reverse().map(x=>'<article class="quiz-review"><small>'+escapeAttempt(x.stage||x[0]||"Stage")+' · '+escapeAttempt(x.topic||x[1]||"Topic")+' · '+escapeAttempt(x.difficulty||x[2]||"")+'</small><p><b>'+escapeAttempt(x.question||x[3]||"")+'</b></p>'+(attemptMode==="unattempted"?"<p class='sub'>You haven't attempted this question yet.</p>":'<p>Your answer: '+escapeAttempt((x.options||x[4])[x.chosen])+'<br>Correct answer: '+escapeAttempt((x.options||x[4])[x.answer])+'</p><p class="sub">'+escapeAttempt(x.explanation||x[6]||"")+'</p>')+'</article>').join(""):'<p class="note">No '+(attemptMode==="unattempted"?"unattempted":attemptMode)+' questions here.</p>';
 }
 function escapeAttempt(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 $("showCorrect").addEventListener("click",()=>{attemptMode="correct";renderAttempts()});
 $("showIncorrect").addEventListener("click",()=>{attemptMode="incorrect";renderAttempts()});
+$("showUnattempted").addEventListener("click",()=>{attemptMode="unattempted";renderAttempts()});
 renderAttempts();
 
 fillStages();
