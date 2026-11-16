@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Online Compiler | Ship It</title>
+<script>try{var t=localStorage.getItem("shipit-theme");if(!["cinema","midnight","genesis","pulse","dimension"].includes(t))t="genesis";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.compiler-wrap{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+.compiler-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.compiler-head h1{margin:0 0 6px}.compiler-head p{margin:0;color:var(--mute)}
+.compiler-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.compiler-tools select,.compiler-tools button,.compiler-config input,.compiler-input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.compiler-tools select{min-width:170px}
+.compiler-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.8fr);gap:16px}
+.compiler-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
+.compiler-panel h2{font-size:1rem;margin:0 0 10px}
+.compiler-editor{width:100%;min-height:430px;resize:vertical;background:#090d16;color:#e7edf8;border:1px solid var(--line);border-radius:10px;padding:16px;font:14px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4;white-space:pre;overflow:auto}
+.compiler-input{width:100%;min-height:115px;resize:vertical;font:13px/1.5 ui-monospace,monospace}
+.compiler-output{min-height:190px;max-height:360px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#090d16;color:#d8e4f5;border-radius:10px;padding:14px;font:13px/1.6 ui-monospace,monospace}
+.compiler-run{background:var(--accent)!important;color:var(--on)!important;font-weight:800;border-color:var(--accent)!important;cursor:pointer}
+.compiler-status{color:var(--mute);font-size:.88rem;min-height:1.5em;margin:8px 0}
+.compiler-config{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.compiler-config input{flex:1;min-width:220px}
+.compiler-note{color:var(--mute);font-size:.85rem;margin:12px 0}
+.compiler-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.compiler-actions button{cursor:pointer}
+@media(max-width:800px){.compiler-grid{grid-template-columns:1fr}.compiler-editor{min-height:330px}}
+</style>
+</head>
+<body>
+<header class="top"><b>Ship It</b><span class="streak">Compiler workspace</span></header>
+<main class="compiler-wrap">
+<div class="compiler-head"><div><p class="meta">BUILD · TEST · DEBUG</p><h1>Online Compiler</h1><p>Write and run code in five programming languages.</p></div>
+<div class="compiler-tools"><label for="language">Language</label><select id="language"><option value="50">C (GCC)</option><option value="54">C++ (G++)</option><option value="62">Java</option><option value="63">JavaScript (Node.js)</option><option value="71">Python 3</option></select><button id="run" class="compiler-run">▶ Run code</button></div></div>
+<div class="compiler-config"><input id="apiUrl" type="url" placeholder="Paste your deployed Compiler Worker URL (https://...)"><button id="saveUrl">Save backend URL</button></div>
+<p class="compiler-note">One-time setup: deploy <code>worker/compiler-worker.js</code> as a Cloudflare Worker, then paste its URL above. Your code is sent to that backend for sandboxed execution via Judge0.</p>
+<div class="compiler-grid">
+<section class="compiler-panel"><div class="compiler-actions"><button id="sample">Load starter code</button><button id="copy">Copy code</button><button id="clear">Clear editor</button></div><h2>Code editor</h2><textarea id="source" class="compiler-editor" spellcheck="false" aria-label="Source code"></textarea></section>
+<div style="display:grid;gap:16px;align-content:start">
+<section class="compiler-panel"><h2>Input (stdin)</h2><textarea id="stdin" class="compiler-input" placeholder="Enter input for your program..."></textarea></section>
+<section class="compiler-panel"><h2>Program output</h2><pre id="output" class="compiler-output" aria-live="polite">Your program output will appear here.</pre><p id="status" class="compiler-status" role="status">Ready.</p><p id="metrics" class="compiler-note"></p></section>
+</div></div>
+</main>
+<script src="../js/app.js"></script>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const samples={
+"50":'#include <stdio.h>\n\nint main(void) {\n    printf("Hello, Ship It!\\n");\n    return 0;\n}',
+"54":'#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, Ship It!" << endl;\n    return 0;\n}',
+"62":'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Ship It!");\n    }\n}',
+"63":'console.log("Hello, Ship It!");',
+"71":'print("Hello, Ship It!")'
+};
+const lang=$("language"),src=$("source"),url=$("apiUrl"),status=$("status");
+const key="shipit-compiler-worker-url";
+url.value=localStorage.getItem(key)||"";
+function starter(){src.value=samples[lang.value];localStorage.setItem("shipit-compiler-"+lang.value,src.value)}
+lang.addEventListener("change",()=>{src.value=localStorage.getItem("shipit-compiler-"+lang.value)||samples[lang.value]});
+src.value=localStorage.getItem("shipit-compiler-"+lang.value)||samples[lang.value];
+src.addEventListener("input",()=>localStorage.setItem("shipit-compiler-"+lang.value,src.value));
+$("saveUrl").onclick=()=>{try{const u=new URL(url.value);if(u.protocol!=="https:")throw 0;localStorage.setItem(key,u.origin+u.pathname.replace(/\/$/,""));url.value=u.origin+u.pathname.replace(/\/$/,"");status.textContent="Backend URL saved."}catch(e){status.textContent="Enter a valid HTTPS Worker URL."}};
+$("sample").onclick=starter;
+$("clear").onclick=()=>{src.value="";src.focus();localStorage.setItem("shipit-compiler-"+lang.value,"")};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText(src.value);status.textContent="Code copied."}catch(e){status.textContent="Clipboard access unavailable."}};
+$("run").onclick=async()=>{
+ const endpoint=localStorage.getItem(key);
+ if(!endpoint){status.textContent="Set and save your Compiler Worker URL first.";return}
+ if(!src.value.trim()){status.textContent="Write some code before running.";return}
+ const btn=$("run");btn.disabled=true;btn.textContent="Running…";$("output").textContent="Submitting code to the compiler…";$("metrics").textContent="";
+ try{
+  const response=await fetch(endpoint.replace(/\/$/,"")+"/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({language_id:Number(lang.value),source_code:src.value,stdin:$("stdin").value})});
+  const data=await response.json();if(!response.ok)throw new Error(data.error||"Compiler request failed ("+response.status+")");
+  const output=[data.stdout,data.stderr?"[stderr]\n"+data.stderr:"",data.compile_output?"[compile output]\n"+data.compile_output:"",data.message?"[message]\n"+data.message:""].filter(Boolean).join("\n");
+  $("output").textContent=output||"(No output)";
+  status.textContent=data.status?.description||"Finished";
+  $("metrics").textContent=[data.time?"Time: "+data.time+" s":"",data.memory?"Memory: "+data.memory+" KB":""].filter(Boolean).join(" · ");
+ }catch(e){$("output").textContent=e.message;status.textContent="Execution failed."}
+ finally{btn.disabled=false;btn.textContent="▶ Run code"}
+};
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter")$("run").click()});
+})();
+</script>
+</body></html>
