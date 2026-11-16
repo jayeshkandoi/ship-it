@@ -495,3 +495,82 @@ html[data-theme=pulse] .field{background:#0e1019;border-color:rgba(132,143,191,.
 .account-menu>button b{margin-left:auto;color:var(--mute);font-size:.78rem;font-weight:600}
 @media(max-width:560px){.top{gap:10px;padding:9px 12px}.nav-icon{width:40px;height:40px}.top .streak{font-size:.78rem}}
 @media(prefers-reduced-motion:reduce){.site-drawer,.drawer-shade,.account-menu{transition:none}}
+
+
+/* 3D Dimension theme: layered depth, glass surfaces and restrained perspective motion. */
+html[data-theme=dimension]{
+ --bg:#090b1b;--card:#12172d;--ink:#f2f2ff;--mute:#a8afd0;--line:rgba(161,151,255,.24);
+ --accent:#9b8cff;--on:#100d25;--soft:#1c2040;--warm:#66e3ff;--ok:#55e6ba;--bad:#ff789d;color-scheme:dark;
+}
+html[data-theme=dimension] body{
+ background-color:var(--bg);
+ background-image:
+  radial-gradient(ellipse at 15% 8%,rgba(105,91,255,.24),transparent 32%),
+  radial-gradient(ellipse at 86% 26%,rgba(0,204,255,.13),transparent 30%),
+  linear-gradient(rgba(153,143,255,.055) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(153,143,255,.055) 1px,transparent 1px);
+ background-size:auto,auto,48px 48px,48px 48px;background-attachment:fixed;
+}
+html[data-theme=dimension] .top{
+ background:rgba(9,11,27,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+ border-bottom:1px solid rgba(155,140,255,.28);box-shadow:0 10px 36px rgba(0,0,0,.32);
+}
+html[data-theme=dimension] .top-brand{ text-shadow:0 0 22px rgba(155,140,255,.4) }
+html[data-theme=dimension] .hero{
+ isolation:isolate;perspective:1000px;transform-style:preserve-3d;
+ background:radial-gradient(ellipse at 50% 0%,rgba(111,91,255,.2),transparent 58%),linear-gradient(145deg,rgba(17,20,48,.96),rgba(8,10,26,.98));
+ border-bottom:1px solid rgba(155,140,255,.25);
+}
+html[data-theme=dimension] .hero:before{
+ content:"";position:absolute;z-index:-1;inset:12% 8%;pointer-events:none;opacity:.5;
+ border:1px solid rgba(117,219,255,.2);border-radius:32px;transform:rotateX(58deg) rotateZ(-12deg) scale(1.12);
+ box-shadow:0 0 70px rgba(111,91,255,.18),inset 0 0 55px rgba(0,204,255,.08);
+}
+html[data-theme=dimension] .hero h1{
+ background:linear-gradient(105deg,#fff 10%,#b9b0ff 52%,#73e5ff 92%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;
+}
+html[data-theme=dimension] .card,
+html[data-theme=dimension] details.st,
+html[data-theme=dimension] .tk-panel,
+html[data-theme=dimension] .topic-lesson,
+html[data-theme=dimension] .poster{
+ background:linear-gradient(145deg,rgba(30,35,72,.82),rgba(13,17,42,.94));
+ border:1px solid rgba(155,140,255,.25);border-radius:18px;
+ box-shadow:0 18px 42px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.08);
+}
+html[data-theme=dimension] .card,
+html[data-theme=dimension] .hero-card,
+html[data-theme=dimension] .poster{
+ transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;
+ transform-style:preserve-3d;
+}
+html[data-theme=dimension] .card:hover,
+html[data-theme=dimension] .hero-card:hover,
+html[data-theme=dimension] .poster:hover{
+ transform:translateY(-6px) rotateX(2deg) rotateY(-2deg);
+ border-color:rgba(116,220,255,.52);
+ box-shadow:0 26px 55px rgba(0,0,0,.42),0 0 28px rgba(112,98,255,.12),inset 0 1px rgba(255,255,255,.1);
+}
+html[data-theme=dimension] .btn{
+ color:#0c1025;background:linear-gradient(110deg,#b5aaff,#69e4ff);
+ border:1px solid rgba(188,180,255,.75);border-radius:12px;
+ box-shadow:0 10px 28px rgba(112,98,255,.28),inset 0 1px rgba(255,255,255,.7);font-weight:800;
+}
+html[data-theme=dimension] .btn:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(112,98,255,.38)}
+html[data-theme=dimension] .ghost,
+html[data-theme=dimension] .mini,
+html[data-theme=dimension] .nav-icon{
+ border-radius:12px;background:rgba(255,255,255,.045);border-color:rgba(155,140,255,.28);
+}
+html[data-theme=dimension] .pop,
+html[data-theme=dimension] .account-menu,
+html[data-theme=dimension] .site-drawer{
+ background:rgba(15,18,45,.96);border-color:rgba(155,140,255,.32);box-shadow:0 24px 70px rgba(0,0,0,.5);backdrop-filter:blur(18px);
+}
+html[data-theme=dimension] .sw{border-radius:12px;background:#171b3b;border-color:rgba(155,140,255,.25)}
+html[data-theme=dimension] .sw[aria-pressed=true]{border-color:#9b8cff;box-shadow:0 0 22px rgba(155,140,255,.25)}
+html[data-theme=dimension] .topic-lesson{border-left:3px solid #73e5ff}
+@media(prefers-reduced-motion:reduce){
+ html[data-theme=dimension] .card,html[data-theme=dimension] .hero-card,html[data-theme=dimension] .poster{transition:none}
+ html[data-theme=dimension] .card:hover,html[data-theme=dimension] .hero-card:hover,html[data-theme=dimension] .poster:hover{transform:none}
+}
