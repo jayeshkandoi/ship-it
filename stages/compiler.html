@@ -33,8 +33,7 @@
 <main class="compiler-wrap">
 <div class="compiler-head"><div><p class="meta">BUILD · TEST · DEBUG</p><h1>Online Compiler</h1><p>Write and run code in five programming languages.</p></div>
 <div class="compiler-tools"><label for="language">Language</label><select id="language"><option value="50">C (GCC)</option><option value="54">C++ (G++)</option><option value="62">Java</option><option value="63">JavaScript (Node.js)</option><option value="71">Python 3</option></select><button id="run" class="compiler-run">▶ Run code</button></div></div>
-<div class="compiler-config"><input id="apiUrl" type="url" placeholder="Paste your deployed Compiler Worker URL (https://...)"><button id="saveUrl">Save backend URL</button></div>
-<p class="compiler-note">One-time setup: deploy <code>worker/compiler-worker.js</code> as a Cloudflare Worker, then paste its URL above. Your code is sent to that backend for sandboxed execution via Judge0.</p>
+<p class="compiler-note">Runs code in Judge0’s hosted sandbox. No backend setup or API key is needed. Avoid submitting passwords or sensitive information.</p>
 <div class="compiler-grid">
 <section class="compiler-panel"><div class="compiler-actions"><button id="sample">Load starter code</button><button id="copy">Copy code</button><button id="clear">Clear editor</button></div><h2>Code editor</h2><textarea id="source" class="compiler-editor" spellcheck="false" aria-label="Source code"></textarea></section>
 <div style="display:grid;gap:16px;align-content:start">
@@ -53,30 +52,27 @@ const samples={
 "63":'console.log("Hello, Ship It!");',
 "71":'print("Hello, Ship It!")'
 };
-const lang=$("language"),src=$("source"),url=$("apiUrl"),status=$("status");
-const key="shipit-compiler-worker-url";
-url.value=localStorage.getItem(key)||"";
+const lang=$("language"),src=$("source"),status=$("status");
+const COMPILER_API="https://ce.judge0.com/submissions?base64_encoded=false&wait=true";
 function starter(){src.value=samples[lang.value];localStorage.setItem("shipit-compiler-"+lang.value,src.value)}
 lang.addEventListener("change",()=>{src.value=localStorage.getItem("shipit-compiler-"+lang.value)||samples[lang.value]});
 src.value=localStorage.getItem("shipit-compiler-"+lang.value)||samples[lang.value];
 src.addEventListener("input",()=>localStorage.setItem("shipit-compiler-"+lang.value,src.value));
-$("saveUrl").onclick=()=>{try{const u=new URL(url.value);if(u.protocol!=="https:")throw 0;localStorage.setItem(key,u.origin+u.pathname.replace(/\/$/,""));url.value=u.origin+u.pathname.replace(/\/$/,"");status.textContent="Backend URL saved."}catch(e){status.textContent="Enter a valid HTTPS Worker URL."}};
 $("sample").onclick=starter;
 $("clear").onclick=()=>{src.value="";src.focus();localStorage.setItem("shipit-compiler-"+lang.value,"")};
 $("copy").onclick=async()=>{try{await navigator.clipboard.writeText(src.value);status.textContent="Code copied."}catch(e){status.textContent="Clipboard access unavailable."}};
 $("run").onclick=async()=>{
- const endpoint=localStorage.getItem(key);
- if(!endpoint){status.textContent="Set and save your Compiler Worker URL first.";return}
  if(!src.value.trim()){status.textContent="Write some code before running.";return}
- const btn=$("run");btn.disabled=true;btn.textContent="Running…";$("output").textContent="Submitting code to the compiler…";$("metrics").textContent="";
+ const btn=$("run");btn.disabled=true;btn.textContent="Running…";$("output").textContent="Compiling and running your code…";$("metrics").textContent="";
  try{
-  const response=await fetch(endpoint.replace(/\/$/,"")+"/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({language_id:Number(lang.value),source_code:src.value,stdin:$("stdin").value})});
-  const data=await response.json();if(!response.ok)throw new Error(data.error||"Compiler request failed ("+response.status+")");
+  const response=await fetch(COMPILER_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({language_id:Number(lang.value),source_code:src.value,stdin:$("stdin").value,cpu_time_limit:5,wall_time_limit:10,memory_limit:128000})});
+  const raw=await response.text();let data;try{data=JSON.parse(raw)}catch(e){throw new Error("The online compiler returned an invalid response. Please try again later.")}
+  if(!response.ok)throw new Error(data.error||data.message||"Compiler request failed ("+response.status+")");
   const output=[data.stdout,data.stderr?"[stderr]\n"+data.stderr:"",data.compile_output?"[compile output]\n"+data.compile_output:"",data.message?"[message]\n"+data.message:""].filter(Boolean).join("\n");
   $("output").textContent=output||"(No output)";
   status.textContent=data.status?.description||"Finished";
   $("metrics").textContent=[data.time?"Time: "+data.time+" s":"",data.memory?"Memory: "+data.memory+" KB":""].filter(Boolean).join(" · ");
- }catch(e){$("output").textContent=e.message;status.textContent="Execution failed."}
+ }catch(e){$("output").textContent=e.message+(e instanceof TypeError?" Check your internet connection or try again later.":"");status.textContent="Execution failed."}
  finally{btn.disabled=false;btn.textContent="▶ Run code"}
 };
 document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter")$("run").click()});
