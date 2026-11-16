@@ -168,7 +168,7 @@ const top=document.querySelector(".top");if(!top)return;
 const script=document.querySelector('script[src$="js/app.js"]');
 const root=new URL("../",new URL(script.getAttribute("src"),location.href));
 const url=p=>new URL(p,root).href;
-const links=[["Home","index.html#hero"],["Heroes","index.html#heroes"],["Roadmap","index.html#pathh"],["Practice","practice.html"],["Projects","index.html#projs"],["MCQ Practice","stages/mcq.html"],["Flashcards","stages/flashcards.html"],["Cheat sheets","stages/cheatsheets.html"]];
+const links=[["Home","index.html#hero"],["Heroes","index.html#heroes"],["Roadmap","index.html#pathh"],["Practice","practice.html"],["Projects","index.html#projs"],["MCQ Practice","stages/mcq.html"],["Compiler","stages/compiler.html"],["Flashcards","stages/flashcards.html"],["Cheat sheets","stages/cheatsheets.html"]];
 top.innerHTML='<button class="nav-icon" id="menuBtn" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><a class="top-brand" href="'+url("index.html")+'">Ship It</a><span class="nav-spacer"></span><span class="streak" id="streak"></span><button class="nav-icon account-trigger" id="accountMenuBtn" type="button" aria-label="Open account menu" aria-expanded="false"><span class="account-glyph">♙</span></button>';
 const drawer=document.createElement("aside");drawer.className="site-drawer";drawer.id="siteDrawer";drawer.setAttribute("aria-label","Main navigation");
 drawer.innerHTML='<div class="drawer-head"><b>Explore Ship It</b><button type="button" class="drawer-close" aria-label="Close navigation">×</button></div><nav>'+links.map(x=>'<a href="'+url(x[1])+'">'+x[0]+'<span>↗</span></a>').join("")+'</nav><p class="drawer-foot">Learn · Practise · Build · Ship</p>';
