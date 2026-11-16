@@ -53,25 +53,41 @@ const samples={
 "71":'print("Hello, Ship It!")'
 };
 const lang=$("language"),src=$("source"),status=$("status");
-const COMPILER_API="https://ce.judge0.com/submissions?base64_encoded=false&wait=true";
-function starter(){src.value=samples[lang.value];localStorage.setItem("shipit-compiler-"+lang.value,src.value)}
-lang.addEventListener("change",()=>{src.value=localStorage.getItem("shipit-compiler-"+lang.value)||samples[lang.value]});
-src.value=localStorage.getItem("shipit-compiler-"+lang.value)||samples[lang.value];
-src.addEventListener("input",()=>localStorage.setItem("shipit-compiler-"+lang.value,src.value));
-$("sample").onclick=starter;
-$("clear").onclick=()=>{src.value="";src.focus();localStorage.setItem("shipit-compiler-"+lang.value,"")};
-$("copy").onclick=async()=>{try{await navigator.clipboard.writeText(src.value);status.textContent="Code copied."}catch(e){status.textContent="Clipboard access unavailable."}};
+const COMPILER_API="https://ce.judge0.com/submissions?base64_encoded=false&wait=false";
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const cacheKey="shipit-compiler-result-cache";
+function readCache(){try{return JSON.parse(localStorage.getItem(cacheKey)||"{}")}catch(e){return {}}}
+function showResult(data){
+ const output=[data.stdout,data.stderr?"[stderr]\n"+data.stderr:"",data.compile_output?"[compile output]\n"+data.compile_output:"",data.message?"[message]\n"+data.message:""].filter(Boolean).join("\n");
+ $("output").textContent=output||"(No output)";
+ status.textContent=data.status?.description||"Finished";
+ $("metrics").textContent=[data.time?"Time: "+data.time+" s":"",data.memory?"Memory: "+data.memory+" KB":""].filter(Boolean).join(" · ");
+}
 $("run").onclick=async()=>{
  if(!src.value.trim()){status.textContent="Write some code before running.";return}
- const btn=$("run");btn.disabled=true;btn.textContent="Running…";$("output").textContent="Compiling and running your code…";$("metrics").textContent="";
+ const btn=$("run"),payload={language_id:Number(lang.value),source_code:src.value,stdin:$("stdin").value};
+ const cacheId=payload.language_id+"|"+payload.source_code+"|"+payload.stdin;
+ const cache=readCache();
+ if(cache[cacheId]){showResult(cache[cacheId]);status.textContent="Instant result · loaded from recent run";return}
+ btn.disabled=true;btn.textContent="Submitting…";$("output").textContent="Sending code to compiler…";$("metrics").textContent="";
  try{
-  const response=await fetch(COMPILER_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({language_id:Number(lang.value),source_code:src.value,stdin:$("stdin").value,cpu_time_limit:5,wall_time_limit:10,memory_limit:128000})});
-  const raw=await response.text();let data;try{data=JSON.parse(raw)}catch(e){throw new Error("The online compiler returned an invalid response. Please try again later.")}
-  if(!response.ok)throw new Error(data.error||data.message||"Compiler request failed ("+response.status+")");
-  const output=[data.stdout,data.stderr?"[stderr]\n"+data.stderr:"",data.compile_output?"[compile output]\n"+data.compile_output:"",data.message?"[message]\n"+data.message:""].filter(Boolean).join("\n");
-  $("output").textContent=output||"(No output)";
-  status.textContent=data.status?.description||"Finished";
-  $("metrics").textContent=[data.time?"Time: "+data.time+" s":"",data.memory?"Memory: "+data.memory+" KB":""].filter(Boolean).join(" · ");
+  const response=await fetch(COMPILER_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,cpu_time_limit:5,wall_time_limit:10,memory_limit:128000})});
+  const raw=await response.text();let submitted;try{submitted=JSON.parse(raw)}catch(e){throw new Error("The online compiler returned an invalid response. Please try again later.")}
+  if(!response.ok)throw new Error(submitted.error||submitted.message||"Compiler request failed ("+response.status+")");
+  if(!submitted.token)throw new Error(submitted.error||"Compiler did not return a submission token.");
+  let result=null;
+  for(let attempt=0;attempt<50;attempt++){
+   status.textContent=attempt<2?"Queued · waiting for compiler…":"Compiling and checking result…";
+   btn.textContent=attempt<2?"Queued…":"Compiling…";
+   await sleep(600);
+   const poll=await fetch("https://ce.judge0.com/submissions/"+encodeURIComponent(submitted.token)+"?base64_encoded=false&fields=stdout,stderr,compile_output,message,status,time,memory");
+   const pollRaw=await poll.text();try{result=JSON.parse(pollRaw)}catch(e){throw new Error("Could not read the compiler result. Please try again.")}
+   if(!poll.ok)throw new Error(result.error||"Could not retrieve execution result ("+poll.status+").");
+   if(result.status&&result.status.id>2)break;
+  }
+  if(!result||!result.status||result.status.id<=2)throw new Error("Compilation is taking longer than 30 seconds. Try again shortly.");
+  showResult(result);
+  if(result.status.id===3){const latest=readCache();latest[cacheId]=result;const keys=Object.keys(latest);while(keys.length>20)delete latest[keys.shift()];localStorage.setItem(cacheKey,JSON.stringify(latest))}
  }catch(e){$("output").textContent=e.message+(e instanceof TypeError?" Check your internet connection or try again later.":"");status.textContent="Execution failed."}
  finally{btn.disabled=false;btn.textContent="▶ Run code"}
 };
